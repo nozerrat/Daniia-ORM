@@ -1,0 +1,19 @@
+{
+    "name": "daniia/Daniia-ORM",
+    "type": "library",
+    "description": "Daniia ORM Framework",
+    "keywords": ["database","orm","db"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Carlos",
+            "email": "garlos.figueroa@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0"
+    },
+    "autoload": {
+        "psr-0": { "Daniia": "." }
+    }
+}
