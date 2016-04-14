@@ -835,12 +835,15 @@ class Daniia
 					if(isset($data[$column])) {
 						if($this->primaryKey==$column) {
 							$isID = $data[$column];
-						}else {
-							if($data[$column]) {
+						} else {
+							if((is_string($data[$column]) && $data[$column]) || is_numeric($data[$column])) {
 								$this->placeholder_data[] = $data[$column];
 								$placeholder[] = "{$column}=?";
-							}else
-								$placeholder[] = "{$column}=NULL";
+							} else {
+								if($data[$column]===true ) $placeholder[] = "{$column}=TRUE";
+								elseif($data[$column]===false) $placeholder[] = "{$column}=FALSE";
+								else $placeholder[] = "{$column}=NULL";
+							}
 						}
 					}
 				}
