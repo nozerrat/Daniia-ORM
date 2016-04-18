@@ -48,7 +48,7 @@ $personas = new Personas();
 ```
 ## Uso y Ejemplos
 Para usar Daniia ORM es muy falcil, aquí aplicaremos algunos ejemplos del uso de la herramienta:
-### Insertar datos
+### Insert
 ```php
 // Insert simple
 $daniia->table("personas")->insert(["ci"=>1,"nombre"=>"Carlos","apellido"=>"Garcia"]);
@@ -60,7 +60,7 @@ $daniia->table("personas")->insert([
 	["ci"=>3,"nombre"=>"Carlos","apellido"=>"Garcia"],
 ]);
 ```
-### Actualizar datos
+### Update
 ```php
 // Update simple
 $daniia->table("personas")->primaryKey("id")->update(["id"=>1,"ci"=>"1111","nombre"=>"aa","apellido"=>"aa"]);
@@ -75,7 +75,7 @@ $r = $daniia->table("personas")->primaryKey("id")->update([
 ]);
 ```
 
-### Eliminar datos
+### Delete
 ```php
 $daniia->table("personas")->where("id",2)->delete();
 
@@ -90,7 +90,7 @@ $daniia->primaryKey('id')->table("personas")->find([8])->delete();
 ```
 
 
-### Seleccionar datos
+### Select
 ```php
 $daniia->table('personas')->select()->get();
 
@@ -121,7 +121,7 @@ $daniia->table("personas")->where("id",'is',"true",false)->first();//el parametr
 $daniia->table("personas")->where("id is true")->first();
 ```
 
-### Tablas
+### Table
 El método table se encarga de asignar el nombre de la tabla al framework
 ```php
 $daniia->table('personas')->first();
@@ -130,8 +130,44 @@ $daniia->table(['personas'])->first();
 // realizamos un JOIN
 $daniia->table('personas','oficina')->first();
 $daniia->table(['personas','oficina'])->first();
-
 ```
+
+### From
+El método from es similar al método table, se usa para asignar los nombres de las tablas a consultar, pero si en su argumento especificamos un closure indicará un sub-quey contenido en la clausula from.
+```php
+$daniia->table('personas')->from()->first();
+
+$daniia->from('personas')->first();
+$daniia->from(['personas'])->first();
+
+$daniia->from('personas','oficina')->first();
+$daniia->from(['personas','oficina'])->first();
+
+// especificamos un sub-query
+$daniia->from(function (Daniia $daniia) {
+	$daniia->table("personas");
+})->first();
+
+// si especificamos el método table este será un alias para el sub-query contenido en el método from
+$daniia->table("AliasForFROM")->from(function (Daniia $daniia) {
+	$daniia->table("personas");
+})->first();
+
+// otro ejemplo de sub-query anidado contenido en el clausula from
+$daniia->table("A")->from(function (Daniia $daniia) {
+	$daniia->table("B")->from(function (Daniia $daniia) {
+		$daniia->table("C")->from(function (Daniia $daniia) {
+			$daniia->table("personas");
+		});
+	});
+})->first();
+
+// otro ejemplo 
+ $daniia->select("personas.id","personas.nombre","personas.apellido")->from(function (Daniia $daniia) {
+	$daniia->table("personas")->select("personas.id","personas.nombre","personas.apellido");
+})->first();
+```
+
 
 ## API
 ```php
