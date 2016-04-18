@@ -35,6 +35,7 @@ define("DSN","pgsql:port=5432;host=localhost;dbname=postgres");
 ```php
 use Daniia\Daniia;
 $daniia = new Daniia();
+$daniia->table('personas')->get();// consultamos todos los datos
 ```
 en el caso de hederar la clase Daniia hay que hederar la clase BaseDB
 ```php
@@ -45,6 +46,7 @@ class Personas extends BaseDB {
 	protected $primaryKey = "id"; //Clave primaria de la tabla
 }
 $personas = new Personas();
+$personas->get();// consultamos todos los datos
 ```
 ## Uso y Ejemplos
 Para usar Daniia ORM es muy falcil, aquí aplicaremos algunos ejemplos del uso de la herramienta:
