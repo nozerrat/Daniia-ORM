@@ -50,17 +50,54 @@ $personas = new Personas();
 Para usar Daniia ORM es muy falcil, aquí aplicaremos algunos ejemplos del uso de la herramienta:
 ### Insertar datos
 ```php
-// Insert simples
-$daniia->table("personas")->insert(["ci"=>1,"nombre"=>"Carlos","apellido"=>"Garcia","otros"=>"otros"]);
+// Insert simple
+$daniia->table("personas")->insert(["ci"=>1,"nombre"=>"Carlos","apellido"=>"Garcia"]);
 
 // Insert multiples
 $daniia->table("personas")->insert([
-	["ci"=>1,"nombre"=>"Carlos","apellido"=>"Garcia","otros"=>"otros"],
+	["ci"=>1,"nombre"=>"Carlos","apellido"=>"Garcia"],
 	["ci"=>2,"nombre"=>"Carlos","apellido"=>"Garcia"],
-	["ci"=>3,"nombre"=>"Carlos","apellido"=>"Garcia","otros"=>"otros"],
+	["ci"=>3,"nombre"=>"Carlos","apellido"=>"Garcia"],
 ]);
 ```
 ### Actualizar datos
+```php
+// Update simple
+$daniia->table("personas")->primaryKey("id")->update(["id"=>1,"ci"=>"1111","nombre"=>"aa","apellido"=>"aa"]);
+// o en caso de que la ID no este esablecida en los datos
+$daniia->table("personas")->where("id",1)->update(["ci"=>"1111","nombre"=>"aa","apellido"=>"aa"]);
+
+// Update multiples
+$r = $daniia->table("personas")->primaryKey("id")->update([
+	["id"=>1,"ci"=>4,"nombre"=>"Petra","apellido"=>""],
+	["id"=>2,"ci"=>5,"nombre"=>"José","apellido"=>"Jill"],
+	["id"=>3,"ci"=>6,"nombre"=>"Jhon","apellido"=>"Peña"],
+]);
+```
+
+### Eliminar datos
+```php
+$daniia->table("personas")->where("id",2)->delete();
+
+$daniia->primaryKey('id')->table("personas")->delete(3);
+$daniia->primaryKey('id')->table("personas")->delete([3]);
+
+$daniia->primaryKey('id')->table("personas")->delete(6,7);
+$daniia->primaryKey('id')->table("personas")->delete([6,7]);
+```
+
+
+### Seleccionar datos
+```php
+$daniia->table('personas')->select()->get();
+
+$daniia->table('personas')->select('COUNT(*)')->first();
+
+$daniia->table('personas')->select('ci','nombre')->first();
+$daniia->table('personas')->select(['ci','nombre'])->first();
+```
+
+
 
 ## API
 ```php
