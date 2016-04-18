@@ -44,7 +44,24 @@ class Personas extends BaseDB {
 	protected $table = "personas"; //Nombre de la tabla
 	protected $primaryKey = "id"; //Clave primaria de la tabla
 }
+$personas = new Personas();
 ```
+## Uso y Ejemplos
+Para usar Daniia ORM es muy falcil, aquí aplicaremos algunos ejemplos del uso de la herramienta:
+### Insertar datos
+```php
+// Insert simples
+$daniia->table("personas")->insert(["ci"=>1,"nombre"=>"Carlos","apellido"=>"Garcia","otros"=>"otros"]);
+
+// Insert multiples
+$daniia->table("personas")->insert([
+	["ci"=>1,"nombre"=>"Carlos","apellido"=>"Garcia","otros"=>"otros"],
+	["ci"=>2,"nombre"=>"Carlos","apellido"=>"Garcia"],
+	["ci"=>3,"nombre"=>"Carlos","apellido"=>"Garcia","otros"=>"otros"],
+]);
+```
+### Actualizar datos
+
 ## API
 ```php
 
