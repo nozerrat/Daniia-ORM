@@ -79,7 +79,7 @@ public function get()
 /**
  * Retorna los datos consultados en formato Array
  */
-public function getArray($excute=true)
+public function getArray()
 /**
  * Alia del get
  */
