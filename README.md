@@ -25,8 +25,8 @@ define("DSN","mysql:port=3306;host=localhost;dbname=test");
 o otro ejemplo:
 ```php
 // Conexión con la Base de Datos PostgreSql
-define("USER","root");
+define("USER","postgres");
 define("PASS","1234");
 define("SCHEMA","public");
-define("DSN","mysql:port=3306;host=localhost;dbname=test");
+define("DSN","pgsql:port=5432;host=localhost;dbname=postgres");
 ```
