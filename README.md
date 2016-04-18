@@ -70,7 +70,7 @@ $daniia->table("personas")->primaryKey("id")->update(["id"=>1,"ci"=>"1111","nomb
 $daniia->table("personas")->where("id",1)->update(["ci"=>"1111","nombre"=>"aa","apellido"=>"aa"]);
 
 // Update multiples
-$r = $daniia->table("personas")->primaryKey("id")->update([
+$daniia->table("personas")->primaryKey("id")->update([
 	["id"=>1,"ci"=>4,"nombre"=>"Petra","apellido"=>""],
 	["id"=>2,"ci"=>5,"nombre"=>"José","apellido"=>"Jill"],
 	["id"=>3,"ci"=>6,"nombre"=>"Jhon","apellido"=>"Peña"],
