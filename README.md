@@ -84,6 +84,9 @@ $daniia->primaryKey('id')->table("personas")->delete([3]);
 
 $daniia->primaryKey('id')->table("personas")->delete(6,7);
 $daniia->primaryKey('id')->table("personas")->delete([6,7]);
+
+$daniia->primaryKey('id')->table("personas")->find(8)->delete();
+$daniia->primaryKey('id')->table("personas")->find([8])->delete();
 ```
 
 
@@ -97,7 +100,38 @@ $daniia->table('personas')->select('ci','nombre')->first();
 $daniia->table('personas')->select(['ci','nombre'])->first();
 ```
 
+### Operadores validos
+Los operadores que soporta la framework Daniia son: =, <, >, <=, >=, <>, !=, like, not like, in, is, is not, ilike, between, not between. Por ejemplo:
+```php
+/**
+ * OPERADORES VALIDOS
+ **/
+$daniia->table("personas")->where("id","4")->first();// por defecto es '='
 
+$daniia->table("personas")->where("id",'=',"4")->first();
+
+$daniia->table("personas")->where("id",'like',"4")->first();
+
+$daniia->table("personas")->where("id",["4"])->first();// si es un array por default es 'IN'
+
+$daniia->table("personas")->where("id",'in',["4"])->first();
+
+$daniia->table("personas")->where("id",'is',"true",false)->first();//el parametro false indica no escapar valor
+// o puede usar en este caso 
+$daniia->table("personas")->where("id is true")->first();
+```
+
+### Tablas
+El método table se encarga de asignar el nombre de la tabla al framework
+```php
+$daniia->table('personas')->first();
+$daniia->table(['personas'])->first();
+
+// realizamos un JOIN
+$daniia->table('personas','oficina')->first();
+$daniia->table(['personas','oficina'])->first();
+
+```
 
 ## API
 ```php
