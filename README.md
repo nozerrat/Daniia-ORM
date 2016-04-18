@@ -3,5 +3,5 @@ Se trata de un framework para realizar Mapeo de Objeto Racional (Object Relation
 
 ## Requirements
 
-#### PHP >= 5.3 
-#### POD 
+PHP >= 5.3 
+POD 
