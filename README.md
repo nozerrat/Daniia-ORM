@@ -170,6 +170,137 @@ $daniia->table("A")->from(function (Daniia $daniia) {
 })->first();
 ```
 
+### Join, LeftJoin, RightJoin
+```php
+// Join alternativa
+$daniia->table('personas','oficina')->where('personas.id','oficina.id_personas',false)->first();
+
+$daniia->table('personas')->join("oficina","personas.id","oficina.id_personas")->first();
+
+$daniia->table('personas')->innerJoin("oficina","personas.id","=","oficina.id_personas")->first();
+
+$daniia->table('personas')->leftJoin("oficina","personas.id","oficina.id_personas")->first();
+
+$daniia->table('personas')->rightJoin("oficina","personas.id","oficina.id_personas")->first();
+
+$daniia->table("personas")->join('oficina',"personas.id",function(Daniia $query) {
+	$query->select("personas.id")->from("personas")->where("personas.id","4")->limit(1);
+})->first();
+
+$daniia->table('personas')->join("oficina",function(Daniia $daniia) {
+	$daniia->on("personas.id",[1,2,3,4])->orOn("personas.id","<>","oficina.id_personas");
+})->first();
+
+ $daniia->table('personas')->join("oficina alias_a",function(Daniia $daniia) {
+	$daniia->on(function(Daniia $daniia) {
+		$daniia->on("personas.id","alias_a.id_personas");
+	});
+})->join("oficina alias_b",function(Daniia $daniia) {
+	$daniia->on("personas.id",'=',function(Daniia $daniia) {
+		$daniia->table('oficina')->select('id_personas')->where('id_personas',4);
+	});
+})->first();
+
+$daniia->table('personas')->join("oficina",function(Daniia $daniia) {
+	$daniia->on("personas.id",function(Daniia $daniia) {
+		$daniia->select("personas.id")->from("personas")->where("personas.id","4")->limit(1);
+	});
+})->first();
+```
+
+### Get, GetArray, List
+```php
+$daniia->table('personas')->get();
+
+$daniia->table('personas')->getArray();
+
+$daniia->table('personas')->lists('nombre');
+
+$daniia->table('personas')->lists('nombre','id');
+```
+
+###  Find
+```php
+$daniia->primaryKey('id')->table('personas')->find(1);
+$daniia->primaryKey('id')->table('personas')->find([1]);
+
+$daniia->primaryKey('id')->table('personas')->find(1,2);
+$daniia->primaryKey('id')->table('personas')->find([1,2]);
+
+$daniia->primaryKey('id')->table('personas')->find(2);
+echo $daniia->id;
+echo $daniia->ci;
+echo $daniia->nombre;
+echo $daniia->apellido;
+```
+
+### First, FirstArray
+```php
+$daniia->table('personas')->first();
+$daniia->table('personas')->firstArray();
+
+$daniia->table('personas')->where('id',1)->first();
+$daniia->table('personas')->where('id',1)->firstArray();
+
+$daniia->table('personas')->primaryKey('id')->find([1,2])->first();
+$daniia->table('personas')->primaryKey('id')->find([1,2])->firstArray();
+```
+
+### Save
+```php
+$daniia->primaryKey('id')->table('personas')->find(2);
+$daniia->nombre = "yyyyyyyy";
+$daniia->save();//UPDATE
+
+$daniia->primaryKey('id')->table('personas')->find(1,2)->first();
+$daniia->nombre = "yyyyyyyy";
+$daniia->save();//UPDATE
+
+$daniia->primaryKey('id')->table('personas')->find('00')->first(); // registro no existe..
+$daniia->ci       = "123456789";
+$daniia->nombre   = "Carlos";
+$daniia->apellido = "Garcia";
+$daniia->save();//INSERT
+
+$daniia->primaryKey('id')->table('personas');
+$daniia->ci       = "123456789";
+$daniia->nombre   = "Carlos";
+$daniia->apellido = "Garcia";
+$daniia->save();//INSERT
+```
+
+### Order By
+```php
+$daniia->table("personas")->orderBy("ci")->get();
+$daniia->table("personas")->orderBy(["ci"])->get();
+
+$daniia->table("personas")->orderBy("apellido","nombre")->get();
+$daniia->table("personas")->orderBy(["apellido","nombre"])->get();
+
+// al fina se indica el tipo de orden 
+$daniia->table("personas")->orderBy("apellido","nombre",'asc')->get();
+$daniia->table("personas")->orderBy(["apellido","nombre",'desc'])->get();
+```
+
+### Group By
+```php
+$daniia->table("personas")->groupBy("ci")->first();
+$daniia->table("personas")->groupBy(["ci"])->get();
+
+$daniia->table("personas")->groupBy("apellido","nombre")->get();
+$daniia->table("personas")->groupBy(["apellido","nombre"])->get();
+```
+
+### Limit
+```php
+$daniia->table("personas")->limit("1")->get();
+$daniia->table("personas")->limit(["1"])->get();
+
+$daniia->table("personas")->limit("1","0")->get();
+$daniia->table("personas")->limit(["1","0"])->get();
+```
+
+
 
 ## API
 ```php
