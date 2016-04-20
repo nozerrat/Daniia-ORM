@@ -508,7 +508,7 @@ class Daniia
 	 * @param Array $ids
 	 * @return Array|Object
 	 */
-	public function find($ids=[]) {
+	public function find($ids) {
 		if (func_num_args()>0) {
 			if (func_num_args()==1) {
 				if (!is_array($ids)) {
@@ -1079,7 +1079,7 @@ class Daniia
 
 
 	/**
-	 * establece las tebles que van hacer unidas por la izquierda
+	 * establece las tebles que van hacer unidas
 	 * @author Carlos Garcia
 	 * @see function join
 	 * @param $table String
@@ -1090,6 +1090,22 @@ class Daniia
 	 * @return Object
 	 */
 	public function join($table,$column,$operator=null,$value=null, $scape_quote=false) {
+		$this->clauseJoin($table,$column,$operator,$value,$scape_quote,"");
+		return $this;
+	}
+
+	/**
+	 * establece las tebles que van hacer unidas
+	 * @author Carlos Garcia
+	 * @see function join
+	 * @param $table String
+	 * @param $column String|Closure
+	 * @param $operator String
+	 * @param $value String
+	 * @param $scape_quote Bool
+	 * @return Object
+	 */
+	public function innerJoin($table,$column,$operator=null,$value=null, $scape_quote=false) {
 		$this->clauseJoin($table,$column,$operator,$value,$scape_quote,"INNER");
 		return $this;
 	}
@@ -1264,7 +1280,7 @@ class Daniia
 	 * @param String|Array $fields
 	 * @return Object
 	 */
-	public function orderBy($fields=[]) {
+	public function orderBy($fields) {
 		if (func_num_args()>0) {
 			if (func_num_args()==1) {
 				if (!is_array($fields)) {
@@ -1293,7 +1309,7 @@ class Daniia
 	 * @param String|Array $fields
 	 * @return mixed.
 	 */
-	public function groupBy($fields=[]) {
+	public function groupBy($fields) {
 		if (func_num_args()>0) {
 			if (func_num_args()==1) {
 				if (!is_array($fields)) {
