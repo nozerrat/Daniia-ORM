@@ -269,6 +269,117 @@ $daniia->apellido = "Garcia";
 $daniia->save();//INSERT
 ```
 
+### Where
+```php
+$daniia->table("personas")->where("id","1")->first();
+
+$daniia->table("personas")->where("id",'=',"1")->first();
+
+$daniia->table("personas")->where("id","4")->andWhere("id","4")->first();
+
+$daniia->table("personas")->where("id",4)->orWhere("id",4)->first();
+
+$daniia->table("personas")->where("id",[4,5,6,7])->first();
+
+$daniia->table("personas")->where("id",'in',[4,5,6,7])->first();
+
+$daniia->table("personas")->where(function (Daniia $daniia) {
+	$daniia->where("id",4)->andWhere("apellido","LIKE","%garcia%");
+})->first();
+
+$daniia->table("personas")->where(function (Daniia $daniia) {
+	$daniia->where("id",4);
+})->orWhere(function (Daniia $daniia){
+	$daniia->where("id",4);
+})->first();
+
+$daniia->table("personas")->where(function (Daniia $daniia) {
+	$daniia->where("id","1")->orWhere(function (Daniia $daniia) {
+		$daniia->where("id","2")->andWhere(function (Daniia $daniia) {
+			$daniia->where("id","3");
+		});
+	});
+})->first();
+
+$daniia->table("personas")->where("personas.id",function($query) {
+	$query->table("personas")->select("id")->where("id",4)->limit(1);
+})->first();
+
+$daniia->table("personas")->where("personas.id","=",function($query) {
+	$query->table("personas")->select("id")->where("id",4)->limit(1);
+})->first();
+
+$daniia->table("personas")->where("id",'in',function(Daniia $daniia){
+	$daniia->table('personas')->select('id');
+})->first();
+```
+
+### Having 
+```php
+$daniia->table("personas")->having("id","1")->first();
+
+$daniia->table("personas")->having("id",'=',"1")->first();
+
+$daniia->table("personas")->having("id","4")->andHaving("id","4")->first();
+
+$daniia->table("personas")->having("id",4)->orHaving("id",4)->first();
+
+$daniia->table("personas")->having("id",[4,5,6,7])->first();
+
+$daniia->table("personas")->having("id",'in',[4,5,6,7])->first();
+
+$daniia->table("personas")->having(function (Daniia $daniia) {
+	$daniia->having("id",4)->andHaving("apellido","LIKE","%garcia%");
+})->first();
+
+$daniia->table("personas")->having(function (Daniia $daniia) {
+	$daniia->having("id",4);
+})->orHaving(function (Daniia $daniia){
+	$daniia->having("id",4);
+})->first();
+
+$daniia->table("personas")->having(function (Daniia $daniia) {
+	$daniia->having("id","1")->orHaving(function (Daniia $daniia) {
+		$daniia->having("id","2")->andHaving(function (Daniia $daniia) {
+			$daniia->having("id","3");
+		});
+	});
+})->first();
+
+$daniia->table("personas")->having("personas.id",function($query) {
+	$query->table("personas")->select("id")->having("id",4)->limit(1);
+})->first();
+
+$daniia->table("personas")->having("personas.id","=",function($query) {
+	$query->table("personas")->select("id")->having("id",4)->limit(1);
+})->first();
+
+$daniia->table("personas")->having("id",'in',function(Daniia $daniia){
+	$daniia->table('personas')->select('id');
+})->first();
+```
+
+### Union
+```php
+$daniia->table("personas")->where('id',1)->union(function (Daniia $daniia) {
+	$daniia->table("personas")->where('id',1);
+})->get();
+
+$daniia->table("personas")->select('id')->union(function (Daniia $daniia) {
+	$daniia->table("oficina")->select('id_personas AS id');
+})->get();
+
+$daniia->table("personas")->select('id')->where('id',1)->union(function (Daniia $daniia) {
+	$daniia->table("oficina")->select('id_personas AS id')->where('id_personas',4);
+})->get();
+
+$daniia->table("personas")->where('id',1)->union(function (Daniia $daniia) {
+	$daniia->table("personas")->where('id',1);
+})->union(function (Daniia $daniia) {
+	$daniia->table("personas")->where('id',1);
+})->limit(1)->get();
+```
+
 ### Order By
 ```php
 $daniia->table("personas")->orderBy("ci")->get();
