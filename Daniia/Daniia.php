@@ -784,7 +784,8 @@ class Daniia
 			$this->sql = "INSERT INTO {$this->table} {$columns} VALUES {$placeholders};";
 			$this->fetch(false);
 
-			$this->placeholder_data = [];
+			$this->reset();
+
 			return $this->resultset?true:false;
 		}
 		return false;
@@ -806,6 +807,8 @@ class Daniia
 		if($this->driver=='pgsql') {
 			$this->sql = "SELECT lastval() AS {$this->primaryKey};";
 			$this->fetch();
+			$this->reset();
+
 			$lastInsertId = $this->rows[0]->{$this->primaryKey};
 		}
 
@@ -865,7 +868,7 @@ class Daniia
 
 				$this->fetch(false);
 
-				$this->placeholder_data = [];
+				$this->reset();
 				if(!$this->resultset) return false;
 			}
 			return true;
@@ -921,7 +924,8 @@ class Daniia
 
 		$this->fetch(false);
 
-		$this->placeholder_data = [];
+		$this->reset();
+
 		return $this->resultset?true:false;
 	}
 
