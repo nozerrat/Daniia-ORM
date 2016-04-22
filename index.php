@@ -45,12 +45,12 @@ use Daniia\Daniia;
 use Daniia\BaseDB;
 
 class Personas extends BaseDB {
-	protected $table = "personas";
+	protected $table = "test.personas";
 	protected $primaryKey = "id";
 }
 
-$daniia = new Daniia();
-$personas  = new Personas;
+$daniia   = new Daniia();
+$personas = new Personas;
 
 /**
  * COLUMNS
@@ -302,67 +302,82 @@ $personas  = new Personas;
 //var_dump($daniia->sql);
 //var_dump($r);
 //echo "<hr>";
-
+//
 //$r = $daniia->from('personas')->first();
 //var_dump($daniia->sql);
 //var_dump($r);
 //echo "<hr>";
-
+//
 //$r = $daniia->from(['personas'])->first();
 //var_dump($daniia->sql);
 //var_dump($r);
 //echo "<hr>";
-
+//
 //$r = $daniia->from('personas','oficina')->first();
 //var_dump($daniia->sql);
 //var_dump($r);
 //echo "<hr>";
 //
+//$r = $personas->from('oficina')->first();
+//var_dump($personas->sql);
+//var_dump($r);
+//echo "<hr>";
+//
+//
 //$r = $daniia->from(['personas','oficina'])->first();
 //var_dump($daniia->sql);
 //var_dump($r);
 //echo "<hr>";
-
-//$r = $daniia->from(['personas','oficina'])->where('personas.id','oficina.id_personas')->first();
+//
+//$r = $daniia->from(['personas','oficina'])->where('personas.id=oficina.id_personas')->first();
 //var_dump($daniia->sql);
 //var_dump($r);
 //echo "<hr>";
-
+//
 //$r = $daniia->from(function (Daniia $daniia) {
 //		$daniia->table("personas");
 //	})->first();
 //var_dump($daniia->sql);
 //var_dump($r);
 //echo "<hr>";
-
-//$r = $daniia->table("AliasForFROM")->from(function (Daniia $daniia) {
+//
+//$r = $daniia->from(function (Daniia $daniia) {
 //		$daniia->table("personas");
-//	})->first();
+//	},"AliasForFROM")->first();
 //var_dump($daniia->sql);
 //var_dump($r);
 //echo "<hr>";
-
-//$r = $daniia->select("personas.id","personas.nombre","personas.apellido")->from(function (Daniia $daniia) {
+//
+//$r = $daniia->select("id","nombre","apellido")->from(function (Daniia $daniia) {
 //		$daniia->table("personas")->select("personas.id","personas.nombre","personas.apellido");
 //	})->first();
 //var_dump($daniia->sql);
 //var_dump($r);
 //echo "<hr>";
-
+//
 //$r = $daniia->select("id_personas","id_oficinas")->from(function (Daniia $daniia) {
 //		$daniia->table("oficina")->select("id_personas","id AS id_oficinas")->where("id_personas",'<=',4);
 //	})->first();
 //var_dump($daniia->sql);
 //var_dump($r);
 //echo "<hr>";
-
-//$r = $daniia->table("A")->from(function (Daniia $daniia) {
-//	$daniia->table("B")->from(function (Daniia $daniia) {
-//		$daniia->table("C")->from(function (Daniia $daniia) {
+//
+//$r = $daniia->from(function (Daniia $daniia) {
+//	$daniia->from(function (Daniia $daniia) {
+//		$daniia->from(function (Daniia $daniia) {
 //			$daniia->table("personas");
-//		});
-//	});
-//})->first();
+//		},"C");
+//	},"B");
+//},"A")->first();
+//var_dump($daniia->sql);
+//var_dump($r);
+//echo "<hr>";
+//
+//$r = $daniia->select("id_personas","id_oficinas")->from(function (Daniia $daniia) {
+//	$daniia->table("oficina")->select("id_personas","id AS id_oficinas")->where("id_personas",'<=',4);
+//})
+//->where('TRUE')
+//->first();
 //var_dump($daniia->sql);
 //var_dump($r);
 //echo "<hr>";
@@ -381,7 +396,7 @@ $personas  = new Personas;
 //var_dump($r);
 //echo "<hr>";
 //
-//$r = $daniia->table('personas')->innerJoin("oficina","personas.id","=","oficina.id_personas")->first();
+//$r = $daniia->table('personas')->join("oficina","personas.id","=","oficina.id_personas")->first();
 //var_dump($daniia->sql);
 //var_dump($r);
 //echo "<hr>";
@@ -673,6 +688,8 @@ $personas  = new Personas;
 /**
  * WHERE
  **/
+////['=', '<', '>', '<=', '>=', '<>', '!=','like', 'not like', 'in']
+
 //$r = $daniia->table("personas")->where("id",'like',"%1%")->first();
 //var_dump($daniia->sql);
 //var_dump($r);
