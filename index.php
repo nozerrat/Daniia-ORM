@@ -22,11 +22,11 @@
 
 
 foreach ([
-	"USER" =>"root",
-	"PASS" =>"",
-	"SCHEMA" =>"test",
-	"DSN" =>"mysql:port=3306;host=localhost;dbname=test",
-	] as $key => $value
+			 "USER" =>"root",
+			 "PASS" =>"",
+			 "SCHEMA" =>"test",
+			 "DSN" =>"mysql:port=3306;host=localhost;dbname=test",
+		 ] as $key => $value
 ) { define(strtoupper($key),$value); }
 
 //foreach ([
@@ -226,17 +226,22 @@ $personas = new Personas;
 //var_dump($r);
 //echo "<hr>";
 //
-//$r = $daniia->table("personas")->where("id",'like',"4")->first();
+//$r = $daniia->table("personas")->where("id",'LIKE',"4")->first();
 //var_dump($daniia->sql);
 //var_dump($r);
 //echo "<hr>";
 //
-//$r = $daniia->table("personas")->where("id",'not like',"4")->first();
+//$r = $daniia->table("personas")->where("id",'NOT LIKE',"4")->first();
 //var_dump($daniia->sql);
 //var_dump($r);
 //echo "<hr>";
 //
-//$r = $daniia->table("personas")->where("nombre",'ilike',"carlos")->first();
+//$r = $daniia->table("personas")->where("nombre",'ILIKE',"carlos")->first();
+//var_dump($daniia->sql);
+//var_dump($r);
+//echo "<hr>";
+//
+//$r = $daniia->table("personas")->where("nombre",'NOT ILIKE',"carlos")->first();
 //var_dump($daniia->sql);
 //var_dump($r);
 //echo "<hr>";
@@ -246,27 +251,37 @@ $personas = new Personas;
 //var_dump($r);
 //echo "<hr>";
 //
-//$r = $daniia->table("personas")->where("id",'in',["4"])->first();
+//$r = $daniia->table("personas")->where("id",'IN',["4"])->first();
 //var_dump($daniia->sql);
 //var_dump($r);
 //echo "<hr>";
 //
-//$r = $daniia->table("personas")->where("id",'is',"true",false)->first();// el parametro 'false' indica no escapar valor
+//$r = $daniia->table("personas")->where("id",'IS',"TRUE",false)->first();// el parametro 'false' indica no escapar valor
 //var_dump($daniia->sql);
 //var_dump($r);
 //echo "<hr>";
 //
-//$r = $daniia->table("personas")->where("id",'is not',"null",false)->first();// el parametro 'false' indica no escapar valor
+//$r = $daniia->table("personas")->where("id IS TRUE")->first();// el parametro 'false' indica no escapar valor
 //var_dump($daniia->sql);
 //var_dump($r);
 //echo "<hr>";
 //
-//$r = $daniia->table("personas")->where("id",'between',$daniia->quote(3)." AND ".$daniia->quote(5),false)->first();// el parametro 'false' indica no escapar valor
+//$r = $daniia->table("personas")->where("id",'IS NOT',"NULL",false)->first();// el parametro 'false' indica no escapar valor
 //var_dump($daniia->sql);
 //var_dump($r);
 //echo "<hr>";
 //
-//$r = $daniia->table("personas")->where("id",'not between',$daniia->quote(3)." AND ".$daniia->quote(5),false)->first();// el parametro 'false' indica no escapar valor
+//$r = $daniia->table("personas")->where("id IS NOT NULL")->first();// el parametro 'false' indica no escapar valor
+//var_dump($daniia->sql);
+//var_dump($r);
+//echo "<hr>";
+//
+//$r = $daniia->table("personas")->where("id",'BETWEEN',[3,5])->first();// el parametro 'false' indica no escapar valor
+//var_dump($daniia->sql);
+//var_dump($r);
+//echo "<hr>";
+//
+//$r = $daniia->table("personas")->where("id",'NOT BETWEEN',[3,5])->first();// el parametro 'false' indica no escapar valor
 //var_dump($daniia->sql);
 //var_dump($r);
 //echo "<hr>";

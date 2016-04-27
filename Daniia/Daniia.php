@@ -179,7 +179,7 @@ class Daniia
 	 * Operadores SQL
 	 * @var Array
 	 */
-	private $operators = ['=', '<', '>', '<=', '>=', '<>', '!=','like', 'not like' , 'in', 'is', 'is not', 'ilike', 'between', 'not between'];
+	private $operators = ['=', '<', '>', '<=', '>=', '<>', '!=','like', 'not like' , 'in', 'is', 'is not', 'ilike', 'not ilike', 'between', 'not between'];
 
 	/**
 	 * para saber si es una sentencia agrupada
@@ -970,6 +970,11 @@ class Daniia
 			$_ENV[$clauseLower] = null;
 			$scape_quote = false;
 			$value = $get_sql;
+		}
+
+		if(is_array($value)&&(strtolower($operator)=='between'||strtolower($operator)=='not between')){
+			$scape_quote = false;
+			$value = ' '.$this->id_conn->quote($value[0]).' AND '.$this->id_conn->quote($value[1]).' ';
 		}
 
 		if(is_array($value)) {
