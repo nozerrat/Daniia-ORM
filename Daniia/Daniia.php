@@ -802,9 +802,8 @@ class Daniia
 		if($this->driver=='pgsql') {
 			$this->sql = "SELECT lastval() AS {$this->primaryKey};";
 			$this->fetch();
-			$this->reset();
-
 			$lastInsertId = $this->rows[0]->{$this->primaryKey};
+			$this->reset();
 		}
 
 		return (int) $lastInsertId;
