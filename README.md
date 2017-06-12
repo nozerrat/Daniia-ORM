@@ -4,7 +4,7 @@ Se trata de un framework para realizar Mapeo de Objeto Racional (Object Relation
 
 ## Requerimientos
 - PHP >= 5.3
-- POD
+- PDO
 
 ## Motor de Base de Datos soportado
 Daniia ORM es compatible con:
