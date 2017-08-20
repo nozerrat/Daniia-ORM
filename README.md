@@ -2,6 +2,17 @@
 # Daniia
 Se trata de un framework para realizar Mapeo de Objeto Racional (Object Relational Mapping ORM) para PHP basado en el patrón de diseño ORM ActiveRecord
 
+## Instalación
+
+### Composer
+
+Para instalar con [Composer](https://getcomposer.org/), simplemente requiere la
+última versión de este paquete.
+
+```bash
+composer require nozerrat/daniia
+```
+
 ## Requerimientos
 - PHP >= 5.3
 - PDO
