@@ -12,6 +12,6 @@
  */
 namespace Daniia;
 
-class BaseDB extends Daniia {
+class BaseDaniia extends Daniia {
 	protected $extended   = true;
 }

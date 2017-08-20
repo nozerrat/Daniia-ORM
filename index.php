@@ -39,12 +39,12 @@ foreach ([
 //) { define(strtoupper($key),$value); }
 
 require("Daniia/Daniia.php");
-require("Daniia/BaseDB.php");
+require("Daniia/BaseDaniia.php");
 
 use Daniia\Daniia;
-use Daniia\BaseDB;
+use Daniia\BaseDaniia;
 
-class Personas extends BaseDB {
+class Personas extends BaseDaniia {
 	protected $table = "test.personas";
 	protected $primaryKey = "id";
 }

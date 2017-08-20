@@ -38,11 +38,11 @@ use Daniia\Daniia;
 $daniia = new Daniia();
 $daniia->table('personas')->get();// consultamos todos los datos
 ```
-en el caso de hederar la clase Daniia hay que hederar la clase BaseDB
+en el caso de hederar la clase Daniia hay que hederar la clase BaseDaniia
 ```php
 use Daniia\Daniia;
-use Daniia\BaseDB;
-class Personas extends BaseDB {
+use Daniia\BaseDaniia;
+class Personas extends BaseDaniia {
 	protected $table = "personas"; //Nombre de la tabla
 	protected $primaryKey = "id"; //Clave primaria de la tabla
 }
