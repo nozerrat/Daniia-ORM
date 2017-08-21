@@ -149,8 +149,6 @@ $daniia->table(['personas','oficina'])->first();
 ### From
 El método from es similar al método table, se usa para asignar los nombres de las tablas a consultar, pero si en su argumento especificamos un closure indicará un sub-quey contenido en la clausula from.
 ```php
-$daniia->table('personas')->from()->first();
-
 $daniia->from('personas')->first();
 $daniia->from(['personas'])->first();
 
@@ -162,24 +160,28 @@ $daniia->from(function (Daniia $daniia) {
 	$daniia->table("personas");
 })->first();
 
-// si especificamos el método table este será un alias para el sub-query contenido en el método from
-$daniia->table("AliasForFROM")->from(function (Daniia $daniia) {
+// con alias para el sub-query contenido en el método from
+$daniia->from(function (Daniia $daniia) {
 	$daniia->table("personas");
-})->first();
+}, "Alias")->first();
 
 // otro ejemplo de sub-query anidado contenido en el clausula from
-$daniia->table("A")->from(function (Daniia $daniia) {
-	$daniia->table("B")->from(function (Daniia $daniia) {
-		$daniia->table("C")->from(function (Daniia $daniia) {
+$daniia->from(function (Daniia $daniia) {
+	$daniia->from(function (Daniia $daniia) {
+		$daniia->from(function (Daniia $daniia) {
 			$daniia->table("personas");
-		});
-	});
-})->first();
+		}, "C");
+	}, "B");
+}, "A")->first();
 
 // otro ejemplo 
- $daniia->select("personas.id","personas.nombre","personas.apellido")->from(function (Daniia $daniia) {
-	$daniia->table("personas")->select("personas.id","personas.nombre","personas.apellido");
-})->first();
+$daniia
+->select("P.id","P.nombre","P.apellido")
+->from(function (Daniia $daniia) {
+	$daniia
+	->table("personas")
+	->select("personas.id","personas.nombre","personas.apellido");
+}, 'P')->first();
 ```
 
 ### Join, LeftJoin, RightJoin
@@ -428,47 +430,47 @@ $daniia->table("personas")->limit(["1","0"])->get();
 ## API
 ```php
 Daniia {
-	public string quote( void )
-	public Daniia begin( void )
-	public Daniia commit( void )
-	public Daniia rollback( void )
-	public array error( void )
-	public PDOStatement query( void )
-	public array get( void )
-	public array getArray( void )
-	public array all( void )
-	public array allArray( void )
-	public object first( void )
-	public array firstArray( void )
-	public array lists( string $column [, string $index = null ] )
-	public Daniia find( string $ids [, ...] | array $ids )
-	public bool save( void )
-	public Daniia primaryKey( string $primaryKey )
-	public array columns( string $table = null )
-	public bool truncate( void )
-	public Daniia table( string $table [, ...] | array $table )
-	public Daniia select( string $select [, ...] | array $select )
-	public Daniia from( string $table [, ...] | array $table | Closure $table )
-	public bool insert( array $datas )
-	public int insertGetId( array $datas )
-	public bool update( array $datas )
-	public bool delete( string $ids [, ...] | array $ids = [] )
-	public Daniia join( string $table, string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] )
-	public Daniia innerJoin( string $table, string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] )
-	public Daniia leftJoin( string $table, string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] )
-	public Daniia rightJoin( string $table, string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] )
-	public Daniia on( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] )
-	public Daniia orOn( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] )
-	public Daniia andOn( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] )
-	public Daniia where( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] )
-	public Daniia orWhere( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] )
-	public Daniia andWhere( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] )
-	public Daniia having( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] )
-	public Daniia orHaving( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] )
-	public Daniia andHaving( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] )
-	public Daniia orderBy( string $fields | array $fields )
-	public Daniia groupBy( string $fields | array $fields )
-	public Daniia limit( int $limit [, int $offset = null ] | array $limit )
-	public Daniia union( Closure $closure )
+	public string quote( void );
+	public Daniia begin( void );
+	public Daniia commit( void );
+	public Daniia rollback( void );
+	public array error( void );
+	public PDOStatement query( void );
+	public array get( void );
+	public array getArray( void );
+	public array all( void );
+	public array allArray( void );
+	public object first( void );
+	public array firstArray( void );
+	public array lists( string $column [, string $index = null ] );
+	public Daniia find( string $ids [, ...] | array $ids );
+	public bool save( void );
+	public Daniia primaryKey( string $primaryKey );
+	public array columns( string $table = null );
+	public bool truncate( void );
+	public Daniia table( string $table [, ...] | array $table );
+	public Daniia select( string $select [, ...] | array $select );
+	public Daniia from( string $table [, ...] | array $table | Closure $table [, string $aliasFrom] );
+	public bool insert( array $datas );
+	public int insertGetId( array $datas );
+	public bool update( array $datas );
+	public bool delete( string $ids [, ...] | array $ids = [] );
+	public Daniia join( string $table, string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
+	public Daniia innerJoin( string $table, string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
+	public Daniia leftJoin( string $table, string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
+	public Daniia rightJoin( string $table, string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
+	public Daniia on( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
+	public Daniia orOn( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
+	public Daniia andOn( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
+	public Daniia where( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
+	public Daniia orWhere( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
+	public Daniia andWhere( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
+	public Daniia having( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
+	public Daniia orHaving( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
+	public Daniia andHaving( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
+	public Daniia orderBy( string $fields | array $fields );
+	public Daniia groupBy( string $fields | array $fields );
+	public Daniia limit( int $limit [, int $offset = null ] | array $limit );
+	public Daniia union( Closure $closure );
 }
 ```

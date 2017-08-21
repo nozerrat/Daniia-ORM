@@ -158,9 +158,9 @@ class Daniia
 	 * Obtiene la ID de un registro para salvar los datos consultados
 	 * @var Array
 	 */
-	private $save = [];
+	private $saveData = [];
 
-	private $first = [];
+	private $firstData = [];
 
 	/**
 	 * Obtiene los nombres de los campos de una tabla dada
@@ -217,6 +217,22 @@ class Daniia
 	 * @return Object
 	 */
 	private function connection() {
+
+		if ( function_exists('get_instance')) {
+			/**
+			 * Si el framework Daniia es instalado en el framework CodeIgniter 3
+			 * entonces tomamos la configuración de conexión a la base de datos
+			 */
+			$CI =& get_instance();
+
+			if ( @$CI ) {
+				if(!defined('USER'))   define("USER",   $CI->db->username);
+				if(!defined('PASS'))   define("PASS",   $CI->db->password);
+				if(!defined('SCHEMA')) define("SCHEMA", $CI->db->schema);
+				if(!defined('DSN'))    define("DSN",    $CI->db->dsn);
+			}
+		}
+
 		if(defined('SCHEMA'))
 			$this->schema = SCHEMA;
 
@@ -397,16 +413,23 @@ class Daniia
 	/**
 	 * Retorna los datos consultados
 	 * @author Carlos Garcia
-	 * @param boolean $excute
+	 * @param boolean $return_sql
 	 * @return Array|object
 	 */
-	public function get($excute=true) {
+	public function get($return_sql=true) {
 		$this->connection();
-		$this->from = str_replace("_table_", $this->table, $this->from);
+
+
+		if (preg_match('/\./', $this->table)) {
+			$this->from = str_replace("_table_", $this->table, $this->from);
+		}
+		else {
+			$this->from = str_replace("_table_", $this->schema.'.'.$this->table, $this->from);
+		}
 
 		$this->sql = $this->select.' '.$this->from.' '.$this->join.' '.$this->where.' '.$this->union.' '.$this->groupBy.' '.$this->having.' '.$this->orderBy.' '.$this->limit;
 
-		if (!$excute) return $this->sql;
+		if (!$return_sql) return $this->sql;
 
 		$this->fetch();
 
@@ -419,11 +442,11 @@ class Daniia
 	/**
 	 * Retorna los datos consultados en formato Array
 	 * @author Carlos Garcia
-	 * @return boolean $excute
+	 * @return boolean $return_sql
 	 * @return Array
 	 */
-	public function getArray($excute=true) {
-		$this->get($excute);
+	public function getArray($return_sql=true) {
+		$this->get($return_sql);
 		$this->data = array_map(function($v){return(array)$v;},$this->data);
 		return $this->data;
 	}
@@ -456,12 +479,14 @@ class Daniia
 	 * @return Object
 	 */
 	public function first() {
-		if(!count($this->first))
+		if(!count($this->firstData))
 			$this->get();
+
 		if(is_array($this->data))
 			$this->data = isset($this->data[0])?$this->data[0]:[];
 
-		$this->first = [];
+		$this->firstData = [];
+		
 		return $this->data;
 	}
 
@@ -472,7 +497,7 @@ class Daniia
 	 * @return Array
 	 */
 	public function firstArray() {
-		return $this->data = (array)$this->first();
+		return $this->data = (array) $this->first();
 	}
 
 	/**
@@ -518,7 +543,7 @@ class Daniia
 				$ids = func_get_args();
 			}
 
-			$this->placeholder_data = $this->save = $this->first = $ids;
+			$this->placeholder_data = $this->saveData = $this->firstData = $ids;
 
 			$placeholder = $this->get_placeholder($ids);
 			$this->where = " WHERE {$this->primaryKey} IN({$placeholder}) ";
@@ -540,13 +565,18 @@ class Daniia
 	 * @return boolean
 	 */
 	public function save() {
-		if (count($this->save)) {
+var_dump( $this->saveData );
+var_dump( $this->data );
+
+		if (count($this->saveData)) {
 			$this->update((array)$this->data);
-		}elseif (!count($this->save)) {
+		}
+
+		if (!count($this->saveData)) {
 			$this->insert((array)$this->data);
 		}
 
-		$this->save = [];
+		$this->saveData = [];
 		return $this->resultset?true:false;
 	}
 
@@ -571,10 +601,10 @@ class Daniia
 	 */
 	public function columns($table=null) {
 		$this->connection();
-		$schema = $this->schema?"{$this->schema}.":'';
-		$table = $table?$table:$this->table;
-		$table = explode('.',$table);
-		$table = $table[count($table)-1];
+		$schema = $this->schema ? "{$this->schema}." : '';
+		$table  = $table ?: $this->table;
+		$table  = explode('.',$table);
+		$table  = $table[count($table)-1];
 
 
 
@@ -650,7 +680,7 @@ class Daniia
 	/**
 	 * Establese el nombre de la tabla
 	 * @author Carlos Garcia
-	 * @param $table String
+	 * @param $tables String
 	 * @return Object
 	 */
 	public function table($table) {
@@ -659,18 +689,31 @@ class Daniia
 			$table = func_get_args();
 		else if(is_string($table))
 			$table = [$table];
-
-		$schema = $this->schema?"{$this->schema}.":'';
+		
+		$schema = '';
+		if($this->driver=='pgsql')
+			$schema = $this->schema ? $this->schema.'.' : '';
 
 		$tmp_table = [];
-		foreach($table as $val)
-			$tmp_table[] = $schema.$val;
+		foreach($table as $table) {
+			if (preg_match('/\./', $table)) {
+				$tmp_table[] = $table;
+			}
+			else {
+				$tmp_table[] = $schema.$table;
+			}
+		}
 
 		$table = implode(",", $tmp_table);
 
 		if ($this->extended) {
-			$this->table .= ",".$table;
-		}else{
+			if ( $this->table ) {
+				$this->table = $schema.$this->table.",".$table;
+			} else {
+				$this->table = $table;
+			}
+		}
+		else{
 			$this->table = $table;
 		}
 
@@ -684,7 +727,7 @@ class Daniia
 	 * @param string $select
 	 * @return Object
 	 */
-	public function select($select) {
+	public function select($select = "*") {
 		if (func_num_args()>1)
 			$select = func_get_args();
 		else if(is_string($select))
@@ -704,8 +747,8 @@ class Daniia
 	 * @param $table String|Closure
 	 * @param $alias String
 	 * @return Object
-	 */
-	public function from($table="",$alias="") {
+	*/
+	public function from($table="",$aliasFrom="") {
 		$this->connection();
 
 		$sql = "";
@@ -718,7 +761,7 @@ class Daniia
 			$table(new \Daniia\Daniia());
 			$sql = $_ENV["from"]->get_sql();
 			$_ENV["from"] = null;
-			$sql.= " AS ".($alias?$alias:" _alias_ ");
+			$sql.= " AS ".($aliasFrom ? $aliasFrom : " _alias_ ");
 			$closure = true;
 		} else {
 			if (func_num_args()>1)
@@ -726,15 +769,29 @@ class Daniia
 			else if(is_string($table))
 				$table = [$table];
 
-			$table = implode(",", $table);
+			$schema = '';
+			if($this->driver=='pgsql')
+				$schema = $this->schema ? $this->schema.'.' : '';
+
+			$tmp_table = [];
+			foreach($table as $table) {
+				if (preg_match('/\./', $table)) {
+					$tmp_table[] = $table;
+				}
+				else {
+					$tmp_table[] = $schema.$table;
+				}
+			}
+
+			$table = implode(",", $tmp_table);
 		}
 
 		if ($this->extended && is_string($table) && !$closure) {
-			$table = $this->table.",".$table;
+			$table = $schema.$this->table.",".$table;
 		}
 
 		if (!$this->bool_group) {
-			$this->from = str_replace("_table_", ($closure?$sql:($table?$table:$this->table)), $this->from);
+			$this->from = str_replace("_table_", ($closure ? $sql : ($table ?: $this->table)), $this->from);
 		}
 
 		$this->db_instanced();
@@ -804,7 +861,7 @@ class Daniia
 			$this->fetch();
 			$this->reset();
 
-			$lastInsertId = $this->rows[0]->{$this->primaryKey};
+			$lastInsertId = @$this->rows[0]->{$this->primaryKey};
 		}
 
 		return (int) $lastInsertId;
@@ -991,8 +1048,8 @@ class Daniia
 		// }
 
 		if (!$closure && preg_match("/,/", $this->table)) {
-			$str   = $column.' '.strtoupper($operator).' '.($scape_quote===true?$this->id_conn->quote($value):$value)." ";
-		}elseif(!$closure){
+			$str = $column.' '.strtoupper($operator).' '.($scape_quote===true?$this->id_conn->quote($value):$value)." ";
+		}else if(!$closure) {
 			if($operator===null&&$value===true){
 				$str = $column;
 			}else{
@@ -1006,7 +1063,8 @@ class Daniia
 			}else {
 				$this->{$clauseLower} = " {$clauseUpper} {$str} ";
 			}
-		}else{
+		}
+		else {
 			if (preg_match('/\(/', $this->{$clauseLower})) {
 				$this->{$clauseLower} .= " {$logicaOperator} {$str} ";
 			}else {
