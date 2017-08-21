@@ -131,10 +131,10 @@ class Daniia
 	public $sql;
 
 	/**
-	 * última Sentencia SQL ejecutada en la base de datos
+	 * última ID insertada en la base de datos
 	 * @var String
 	 */
-	public $last_sql;
+	public $last_id;
 
 	/**
 	 * Obtiene el resultado de un query
@@ -166,7 +166,7 @@ class Daniia
 	 * Obtiene los nombres de los campos de una tabla dada
 	 * @var Array
 	 */
-	private $columns = [];
+	private $columnsData = [];
 
 	/**
 	 * Identifica el tipo de fetch
@@ -226,6 +226,7 @@ class Daniia
 			$CI =& get_instance();
 
 			if ( @$CI ) {
+				@$CI->db ?: $CI->load->database();
 				if(!defined('USER'))   define("USER",   $CI->db->username);
 				if(!defined('PASS'))   define("PASS",   $CI->db->password);
 				if(!defined('SCHEMA')) define("SCHEMA", $CI->db->schema);
@@ -247,6 +248,7 @@ class Daniia
 			$dsn = explode(':',$this->dsn);
 			$this->driver = strtolower($dsn[0]);
 		}
+		
 		try {
 			if(!$this->id_conn)
 				$this->id_conn = new \PDO($this->dsn, $this->user, $this->pass);
@@ -482,11 +484,13 @@ class Daniia
 		if(!count($this->firstData))
 			$this->get();
 
-		if(is_array($this->data))
-			$this->data = isset($this->data[0])?$this->data[0]:[];
+		if(is_array($this->data) && count($this->data) > 1) {
+			$this->saveData = [];
+			$this->saveData[] = true;
+			$this->data = @$this->data[0];
+		}
 
 		$this->firstData = [];
-		
 		return $this->data;
 	}
 
@@ -550,8 +554,9 @@ class Daniia
 
 			$this->get();
 
-			if (count($ids)==1)
-				$this->data = @$this->data[0];
+			if (count($ids)===1 && count($this->data)===1) {
+				$this->data = $this->data[0];
+			}
 
 			return $this;
 		}
@@ -565,19 +570,18 @@ class Daniia
 	 * @return boolean
 	 */
 	public function save() {
-var_dump( $this->saveData );
-var_dump( $this->data );
-
-		if (count($this->saveData)) {
+		if (count($this->saveData)===1 && @$this->data->{$this->primaryKey}) {
 			$this->update((array)$this->data);
 		}
 
-		if (!count($this->saveData)) {
+		if (count($this->saveData)===1 && !@$this->data->{$this->primaryKey}) {
 			$this->insert((array)$this->data);
 		}
 
 		$this->saveData = [];
-		return $this->resultset?true:false;
+
+		$error = $this->error();
+		return $error[2] ? false : true;
 	}
 
 
@@ -649,15 +653,15 @@ var_dump( $this->data );
 			$stmt->execute();
 			$stmt->setFetchMode(constant('\PDO::FETCH_ASSOC'));
 
-			$this->columns = [];
+			$this->columnsData = [];
 			while ($row = $stmt->fetch()) {
-				$this->columns[] =  $row[$field];
+				$this->columnsData[] = $row[$field];
 			}
 		} catch (\PDOException $e) {
 			die("Error: " . $e->getMessage() . "<br/>");
 		}
 
-		return $this->columns;
+		return $this->columnsData;
 	}
 
 	/**
@@ -713,7 +717,7 @@ var_dump( $this->data );
 				$this->table = $table;
 			}
 		}
-		else{
+		else {
 			$this->table = $table;
 		}
 
@@ -802,10 +806,10 @@ var_dump( $this->data );
 	 * inserta datos en la base de datos
 	 * @author Carlos Garcia
 	 * @param $datas Array
-	 * @param $getId Boolean
+	 * @param $returning_id Boolean
 	 * @return Boolean
 	 */
-	public function insert(array $datas) {
+	public function insert(array $datas, bool $returning_id = false) {
 		if (is_array($datas) && count($datas)) {
 			if (!is_array(@$datas[0]))
 				$datas = [$datas];
@@ -817,7 +821,7 @@ var_dump( $this->data );
 			$this->placeholder_data = [];
 			foreach ($datas as $data) {
 				$placeholder = [];
-				foreach($this->columns as $column){
+				foreach($this->columnsData as $column) {
 					if(isset($data[$column])) {
 						if($data[$column]) {
 							$this->placeholder_data[] = $data[$column];
@@ -833,12 +837,17 @@ var_dump( $this->data );
 
 			$placeholders = implode(",", $placeholders);
 
-			$this->sql = "INSERT INTO {$this->table} {$columns} VALUES {$placeholders};";
-			$this->fetch(false);
+			$returning = $returning_id ? 'RETURNING '.$this->primaryKey : '';
+
+			$this->sql = "INSERT INTO {$this->table} {$columns} VALUES {$placeholders} {$returning};";
+			$this->fetch();
+
+			$this->data = $this->rows;
 
 			$this->reset();
 
-			return $this->resultset?true:false;
+			$error = $this->error();
+			return $error[2] ? false : true;
 		}
 		return false;
 	}
@@ -850,21 +859,18 @@ var_dump( $this->data );
 	 * @return integer
 	 */
 	public function insertGetId($datas) {
-
-		$this->insert($datas,true);
-
-		$lastInsertId = -1;
-		if($this->driver=='mysql')
-			$lastInsertId = $this->id_conn->lastInsertId();
+		$this->last_id = -1;
 		if($this->driver=='pgsql') {
-			$this->sql = "SELECT lastval() AS {$this->primaryKey};";
-			$this->fetch();
-			$this->reset();
-
-			$lastInsertId = @$this->rows[0]->{$this->primaryKey};
+			$this->insert($datas,true);
+			if ( @$this->data[0] ) {
+				$this->last_id = @$this->data[0]->{$this->primaryKey};
+			}
 		}
-
-		return (int) $lastInsertId;
+		else {
+			$this->insert($datas);
+			$this->last_id = $this->id_conn->lastInsertId();
+		}
+		return (int) $this->last_id;
 	}
 
 	/**
@@ -886,7 +892,7 @@ var_dump( $this->data );
 				$placeholder = [];
 				$isID = false;
 
-				foreach($this->columns as $column) {
+				foreach($this->columnsData as $column) {
 					if(isset($data[$column])) {
 						if($this->primaryKey==$column) {
 							$isID = $data[$column];
@@ -921,7 +927,8 @@ var_dump( $this->data );
 				$this->fetch(false);
 
 				$this->reset();
-				if(!$this->resultset) return false;
+				$error = $this->error();
+				if($error[2]) return false;
 			}
 			return true;
 		}
@@ -978,7 +985,8 @@ var_dump( $this->data );
 
 		$this->reset();
 
-		return $this->resultset?true:false;
+		$error = $this->error();
+		return $error[2] ? false : true;		
 	}
 
 
@@ -1397,17 +1405,13 @@ var_dump( $this->data );
 	 * @return Object
 	 */
 	public function limit($limit,$offset=null) {
-		if(is_numeric($limit)) {
-			$this->limit .= " LIMIT {$limit} ";
-			if(is_numeric($offset))
-				$this->limit .= " OFFSET {$offset} ";
+		if (is_numeric($limit) || is_array($limit)) {
+			if(is_array($limit)) {
+				$temp   = $limit;
+				$limit  =  $temp[0];
+				$offset = @$temp[1];
+			}
 
-			$this->db_instanced();
-			return $this;
-		}
-		if(is_array($limit)) {
-			$limit  = $limit[0];
-			$offset = @$limit[1];
 			$this->limit .= " LIMIT {$limit} ";
 			if(is_numeric($offset))
 				$this->limit .= " OFFSET {$offset} ";

@@ -1,23 +1,26 @@
 <?php
 
-/**
- * CREATE TABLE personas
- * (
- * 		id serial NOT NULL,
- * 		nombre text NOT NULL,
- * 		apellido text,
- * 		ci text NOT NULL,
- * 		CONSTRAINT id_pk PRIMARY KEY (id)
- * );
- *
- * CREATE TABLE oficina
- * (
- * 		id serial NOT NULL,
- * 		id_personas integer,
- * 		oficina text,
- * 		CONSTRAINT id_pk_oficina PRIMARY KEY (id)
- * );
- *
+/* 
+
+   CREATE DATABASE daniia;
+
+   CREATE SCHEMA daniia;
+
+   CREATE TABLE personas (
+   		id serial NOT NULL,
+   		nombre text NOT NULL,
+   		apellido text,
+   		ci text NOT NULL,
+   		CONSTRAINT id_pk PRIMARY KEY (id)
+   );
+
+   CREATE TABLE oficina (
+   		id serial NOT NULL,
+   		id_personas integer,
+   		oficina text,
+   		CONSTRAINT id_pk_oficina PRIMARY KEY (id)
+   );
+
  */
 
 
@@ -32,8 +35,8 @@
 foreach ([
 	"USER" =>"postgres",
 	"PASS" =>"123",
-	"SCHEMA" =>"codeigniter",
-	"DSN" =>"pgsql:port=5432;host=localhost;dbname=codeigniter",
+	"SCHEMA" =>"daniia",
+	"DSN" =>"pgsql:port=5432;host=localhost;dbname=daniia",
 	]
 as $key => $value
 ) { define(strtoupper($key),$value); }
@@ -49,19 +52,19 @@ class Personas extends BaseDaniia {
 	protected $primaryKey = "id";
 }
 
-$daniia   = new Daniia();
+$daniia   = new Daniia;
 $personas = new Personas;
 
 /**
  * COLUMNS
  **/
-//$columns = $daniia->columns('personas');
-//var_dump($columns);
-//echo "<hr>";
-//
-//$columns = $daniia->table('personas')->columns();
-//var_dump($columns);
-//echo "<hr>";
+// $columns = $daniia->columns('personas');
+// var_dump($columns);
+// echo "<hr>";
+
+// $columns = $daniia->table('personas')->columns();
+// var_dump($columns);
+// echo "<hr>";
 
 
 
@@ -73,32 +76,47 @@ $personas = new Personas;
 // var_dump($r);
 // echo "<hr>";
 
+// $r = $daniia->table("oficina")->truncate();
+// var_dump($daniia->sql);
+// var_dump($r);
+// echo "<hr>";
+
 
 
 /**
  * INSERT
  **/
-// $r = $daniia->table("personas")->insert(["ci"=>1,"nombre"=>"Carlos","apellido"=>"Garcia","otros"=>"otros"]);
-// var_dump($daniia->sql);
-// var_dump($r);
-// echo "<hr>";
-
-// $r = $daniia->table("personas")->insert([
-// 		["ci"=>2,"nombre"=>"Carlos","apellido"=>"Garcia","otros"=>"otros"],
-// 		["ci"=>3,"nombre"=>"Carlos","apellido"=>"Garcia"],
-// 		["ci"=>4,"nombre"=>"Carlos","apellido"=>"Garcia","otros"=>"otros"],
-// 	]);
+// $r = $daniia
+// ->table("personas")
+// ->insert(["ci"=>1,"nombre"=>"Carlos","apellido"=>"Garcia","otros"=>"otros"]);
 // var_dump($daniia->sql);
 // var_dump($r);
 // echo "<hr>";
 
 // $r = $daniia
-// 	->table("personas")
-// 	->insertGetId(["ci"=>date("Ymdms"),"nombre"=>"Carlos","apellido"=>"Garcia"]);
+// ->table("personas")
+// ->insert([
+// 	["ci"=>2,"nombre"=>"Carlos","apellido"=>"Garcia","otros"=>"otros"],
+// 	["ci"=>3,"nombre"=>"Carlos","apellido"=>"Garcia"],
+// 	["ci"=>4,"nombre"=>"Carlos","apellido"=>"Garcia","otros"=>"otros"],
+// ]);
 // var_dump($daniia->sql);
 // var_dump($r);
 // echo "<hr>";
 
+// $r = $daniia
+// ->table("personas")
+// ->insertGetId(["ci"=>date("Ymdms"),"nombre"=>"Carlos","apellido"=>"Garcia"]);
+// var_dump($daniia->sql);
+// var_dump($r);
+// echo "<hr>";
+
+// $r = $daniia
+// ->table("oficina")
+// ->insert(["id_personas"=>$daniia->last_id,"oficina"=>"Oficina ".$daniia->last_id]);
+// var_dump($daniia->sql);
+// var_dump($r);
+// echo "<hr>";
 
 
 /**
@@ -123,37 +141,54 @@ $personas = new Personas;
 /**
  * DELETE
  **/
-//$r = $daniia->table("personas")->where("id",2)->delete();
-//var_dump($daniia->sql);
-//var_dump($r);
-//echo "<hr>";
-//
-//$r = $daniia->primaryKey('id')->table("personas")->delete([3]);
-//var_dump($daniia->sql);
-//var_dump($r);
-//echo "<hr>";
-//
-//$r = $daniia->primaryKey('id')->table("personas")->where("id",4)->delete(1);
-//var_dump($daniia->sql);
-//var_dump($r);
-//echo "<hr>";
-//
-//$r = $daniia->primaryKey('id')->table("personas")->where("id",5)->delete(6,7);
-//var_dump($daniia->sql);
-//var_dump($r);
-//echo "<hr>";
-//
-//$r = $daniia->primaryKey('id')->table("personas")->find([8])->where("id",9)->delete();
-//var_dump($daniia->sql);
-//var_dump($daniia->data);
-//var_dump($r);
-//echo "<hr>";
-//
-//$r = $daniia->primaryKey('id')->table("personas")->where("id",10)->find([11,12,13])->where("id",14)->delete();
-//var_dump($daniia->sql);
-//var_dump($daniia->data);
-//var_dump($r);
-//echo "<hr>";
+// $r = $daniia->table("personas")->where("id",2)->delete();
+// var_dump($daniia->sql);
+// var_dump($r);
+// echo "<hr>";
+
+// $r = $daniia->primaryKey('id')->table("personas")->delete([3]);
+// var_dump($daniia->sql);
+// var_dump($r);
+// echo "<hr>";
+
+// $r = $daniia->primaryKey('id')->table("personas")->where("id",4)->delete(1);
+// var_dump($daniia->sql);
+// var_dump($r);
+// echo "<hr>";
+
+// $r = $daniia->primaryKey('id')->table("personas")->delete(1,4);
+// var_dump($daniia->sql);
+// var_dump($r);
+// echo "<hr>";
+
+// $r = $daniia->primaryKey('id')->table("personas")->where("id",[5,6,7])->delete();
+// var_dump($daniia->sql);
+// var_dump($r);
+// echo "<hr>";
+
+// $r = $daniia->primaryKey('id')->table("personas")->find([8])->delete();
+// var_dump($daniia->sql);
+// var_dump($daniia->data);
+// var_dump($r);
+// echo "<hr>";
+
+// $r = $daniia->primaryKey('id')->table("personas")->find([11,12,13])->delete();
+// var_dump($daniia->sql);
+// var_dump($daniia->data);
+// var_dump($r);
+// echo "<hr>";
+
+// $r = $daniia->primaryKey('id')->table("personas")->where("id",10)->orWhere("id",14)->delete();
+// var_dump($daniia->sql);
+// var_dump($daniia->data);
+// var_dump($r);
+// echo "<hr>";
+
+// $r = $daniia->primaryKey('id')->table("personas")->delete();
+// var_dump($daniia->sql);
+// var_dump($daniia->data);
+// var_dump($r);
+// echo "<hr>";
 
 
 
@@ -235,22 +270,22 @@ $personas = new Personas;
 // var_dump($r);
 // echo "<hr>";
 
-// $r = $daniia->table("personas")->where("id",'LIKE',"4")->first();
+// $r = $daniia->table("personas")->where("id",'LIKE',"%4%")->first();
 // var_dump($daniia->sql);
 // var_dump($r);
 // echo "<hr>";
 
-// $r = $daniia->table("personas")->where("id",'NOT LIKE',"4")->first();
+// $r = $daniia->table("personas")->where("id",'NOT LIKE',"%4%")->first();
 // var_dump($daniia->sql);
 // var_dump($r);
 // echo "<hr>";
 
-// $r = $daniia->table("personas")->where("nombre",'ILIKE',"carlos")->first();
+// $r = $daniia->table("personas")->where("nombre",'ILIKE',"%carlos%")->first();
 // var_dump($daniia->sql);
 // var_dump($r);
 // echo "<hr>";
 
-// $r = $daniia->table("personas")->where("nombre",'NOT ILIKE',"carlos")->first();
+// $r = $daniia->table("personas")->where("nombre",'NOT ILIKE',"%carlos%")->first();
 // var_dump($daniia->sql);
 // var_dump($r);
 // echo "<hr>";
@@ -349,7 +384,6 @@ $personas = new Personas;
 // var_dump($personas->sql);
 // var_dump($r);
 // echo "<hr>";
-
 
 // $r = $daniia->from(['personas','oficina'])->first();
 // var_dump($daniia->sql);
@@ -634,65 +668,65 @@ $personas = new Personas;
 /**
  * ORDER
  **/
-//$r = $daniia->table("personas")->orderBy("ci")->get();
-//var_dump($daniia->sql);
-//var_dump($r);
-//echo "<hr>";
-//
-//$r = $daniia->table("personas")->orderBy("apellido","nombre")->get();
-//var_dump($daniia->sql);
-//var_dump($r);
-//echo "<hr>";
-//
-//$r = $daniia->table("personas")->orderBy("apellido","nombre",'desc')->get();
-//var_dump($daniia->sql);
-//var_dump($r);
-//echo "<hr>";
-//
-//$r = $daniia->table("personas")->orderBy(["ci"])->get();
-//var_dump($daniia->sql);
-//var_dump($r);
-//echo "<hr>";
-//
-//$r = $daniia->table("personas")->orderBy(["apellido","nombre"])->get();
-//var_dump($daniia->sql);
-//var_dump($r);
-//echo "<hr>";
-//
-//$r = $daniia->table("personas")->orderBy(["apellido","nombre",'desc'])->get();
-//var_dump($daniia->sql);
-//var_dump($r);
-//echo "<hr>";
+// $r = $daniia->table("personas")->orderBy("ci")->get();
+// var_dump($daniia->sql);
+// var_dump($r);
+// echo "<hr>";
+
+// $r = $daniia->table("personas")->orderBy(["ci",'desc'])->get();
+// var_dump($daniia->sql);
+// var_dump($r);
+// echo "<hr>";
+
+// $r = $daniia->table("personas")->orderBy("apellido","nombre")->get();
+// var_dump($daniia->sql);
+// var_dump($r);
+// echo "<hr>";
+
+// $r = $daniia->table("personas")->orderBy("apellido","nombre",'desc')->get();
+// var_dump($daniia->sql);
+// var_dump($r);
+// echo "<hr>";
+
+// $r = $daniia->table("personas")->orderBy(["apellido","nombre"])->get();
+// var_dump($daniia->sql);
+// var_dump($r);
+// echo "<hr>";
+
+// $r = $daniia->table("personas")->orderBy(["apellido","nombre",'desc'])->get();
+// var_dump($daniia->sql);
+// var_dump($r);
+// echo "<hr>";
 
 
 /**
  * LIMIT
  **/
-//$r = $daniia->table("personas")->limit("1","0")->get();
-//var_dump($daniia->sql);
-//var_dump($r);
-//echo "<hr>";
-//
-//$r = $daniia->table("personas")->limit("1")->get();
-//var_dump($daniia->sql);
-//var_dump($r);
-//echo "<hr>";
-//
-//$r = $daniia->table("personas")->limit(["1","0"])->get();
-//var_dump($daniia->sql);
-//var_dump($r);
-//echo "<hr>";
-//
-//$r = $daniia->table("personas")->limit(["1"])->get();
-//var_dump($daniia->sql);
-//var_dump($r);
-//echo "<hr>";
+// $r = $daniia->table("personas")->limit("1","0")->get();
+// var_dump($daniia->sql);
+// var_dump($r);
+// echo "<hr>";
+
+// $r = $daniia->table("personas")->limit("1")->get();
+// var_dump($daniia->sql);
+// var_dump($r);
+// echo "<hr>";
+
+// $r = $daniia->table("personas")->limit(["1","0"])->get();
+// var_dump($daniia->sql);
+// var_dump($r);
+// echo "<hr>";
+
+// $r = $daniia->table("personas")->limit(["1"])->get();
+// var_dump($daniia->sql);
+// var_dump($r);
+// echo "<hr>";
 
 
 /**
  * GROUP
  **/
-// $r = $daniia->table("personas")->groupBy("ci")->first();
+// $r = $daniia->select('ci')->table("personas")->groupBy("ci")->first();
 // var_dump($daniia->sql);
 // var_dump($r);
 // echo "<hr>";
@@ -702,12 +736,12 @@ $personas = new Personas;
 // var_dump($r);
 // echo "<hr>";
 
-// $r = $daniia->table("personas")->select('ci')->groupBy(["ci"])->get();
+// $r = $daniia->table(["personas"])->select(['ci'])->groupBy(["ci"])->get();
 // var_dump($daniia->sql);
 // var_dump($r);
 // echo "<hr>";
 
-// $r = $daniia->table("personas")->groupBy(["apellido","nombre"])->get();
+// $r = $daniia->table(["personas"])->select(["apellido","nombre"])->groupBy(["apellido","nombre"])->get();
 // var_dump($daniia->sql);
 // var_dump($r);
 // echo "<hr>";

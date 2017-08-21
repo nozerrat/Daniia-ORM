@@ -450,8 +450,8 @@ Daniia {
 	public bool truncate( void );
 	public Daniia table( string $table [, ...] | array $table );
 	public Daniia select( string $select [, ...] | array $select );
-	public Daniia from( string $table [, ...] | array $table | Closure $table [, string $aliasFrom] );
-	public bool insert( array $datas );
+	public Daniia from( string $table [, ...] | array $table | Closure $table [, string $aliasFrom = ""] );
+	public bool insert( array $datas [, $returning_id = false]  );
 	public int insertGetId( array $datas );
 	public bool update( array $datas );
 	public bool delete( string $ids [, ...] | array $ids = [] );
