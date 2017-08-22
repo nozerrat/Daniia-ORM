@@ -94,7 +94,7 @@ function met_registrosJoin_Asg_Cli_Gen_Pol_Com_Rec_Gen($cedrif, $cirif, $fecha, 
 	if ($mylim!==null) $daniia->limit($mylim,$myoffset);
 
 	$data  = $daniia->get();
-	echo $daniia->sql.'<br><br>';
+	echo $daniia->last_sql.'<br><br>';
 	//$error = $daniia->error();
 	//echo utf8_decode($error[2]).'<br><br>';
 

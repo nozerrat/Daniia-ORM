@@ -455,18 +455,44 @@ $daniia->table("personas")->limit(["1"])->get();
 $daniia->table("personas")->limit("1","0")->get();
 $daniia->table("personas")->limit(["1","0"])->get();
 ```
+### Otros
+```php
+// Obtiene la última ID insertada en la base de datos
+$daniia->lastId();
+
+// Obtiene la última Query ejecutado
+$daniia->lastQuery();
+
+// Obtiene la última los datos consultados
+$daniia->getData();
+```
 
 
 
 ## API
 ```php
 Daniia {
+	// Obtener datos resultante despues de la ejecución 
+	public integer lastId( void );
+	public string lastQuery( void );
+	public mixed getData( void );
+	public array error( void );
+
+	// Escapa cadenas de caracteres
 	public string quote( void );
+
+	// Sentencia para transación
 	public Daniia begin( void );
 	public Daniia commit( void );
 	public Daniia rollback( void );
-	public array error( void );
-	public PDOStatement query( void );
+
+	// ejecuta sentencias SQL
+	public PDOStatement query( string $sql );
+
+	// Obtiene los campos de la tabla especificada
+	public array columns( string $table = null );
+
+	// ejecuta Query Builder
 	public array get( void );
 	public array getArray( void );
 	public array all( void );
@@ -474,18 +500,20 @@ Daniia {
 	public object first( void );
 	public array firstArray( void );
 	public array lists( string $column [, string $index = null ] );
-	public Daniia find( string $ids [, ...] | array $ids );
 	public bool save( void );
-	public Daniia primaryKey( string $primaryKey );
-	public array columns( string $table = null );
+	public Daniia find( string $ids [, ...] | array $ids );
+
 	public bool truncate( void );
+	public int insertGetId( array $datas );
+	public bool insert( array $datas [, $returning_id = false]  ); // $returning_id solo para PostgresSql
+	public bool update( array $datas );
+	public bool delete( string $ids [, ...] | array $ids = [] );
+	
+	// Query Builder
+	public Daniia primaryKey( string $primaryKey );
 	public Daniia table( string $table [, ...] | array $table );
 	public Daniia select( string $select [, ...] | array $select );
 	public Daniia from( string $table [, ...] | array $table | Closure $table [, string $aliasFrom = ""] );
-	public bool insert( array $datas [, $returning_id = false]  );
-	public int insertGetId( array $datas );
-	public bool update( array $datas );
-	public bool delete( string $ids [, ...] | array $ids = [] );
 	public Daniia join( string $table, string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
 	public Daniia innerJoin( string $table, string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
 	public Daniia leftJoin( string $table, string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
@@ -496,12 +524,12 @@ Daniia {
 	public Daniia where( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
 	public Daniia orWhere( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
 	public Daniia andWhere( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
+	public Daniia union( Closure $closure );
 	public Daniia having( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
 	public Daniia orHaving( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
 	public Daniia andHaving( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
-	public Daniia orderBy( string $fields | array $fields );
 	public Daniia groupBy( string $fields | array $fields );
+	public Daniia orderBy( string $fields | array $fields );
 	public Daniia limit( int $limit [, int $offset = null ] | array $limit );
-	public Daniia union( Closure $closure );
 }
 ```

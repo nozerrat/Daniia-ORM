@@ -128,7 +128,9 @@ class Daniia
 	 * última Sentencia SQL ejecutada en la base de datos de un Resultado Paginado
 	 * @var String
 	 */
-	public $sql;
+	private $sql;
+
+	public $last_sql;
 
 	/**
 	 * última ID insertada en la base de datos
@@ -199,7 +201,7 @@ class Daniia
 	 * contiene los datos consultada
 	 * @var Object
 	 */
-	public $data = [];
+	private $data = [];
 
 	/**
 	 * contiene los datos del marcador de posición
@@ -408,7 +410,7 @@ class Daniia
 	 * @param String $sql
 	 * @return Array
 	 */
-	public function query($sql) {
+	public function query( string $sql ) {
 		return $this->id_conn->query($sql,constant('\PDO::FETCH_'.strtoupper($this->type_fetch)));
 	}
 
@@ -431,7 +433,7 @@ class Daniia
 			$this->from = str_replace("_table_", $this->schema.'.'.$this->table, $this->from);
 		}
 
-		$this->sql = $this->select.' '.$this->from.' '.$this->join.' '.$this->where.' '.$this->union.' '.$this->groupBy.' '.$this->having.' '.$this->orderBy.' '.$this->limit;
+		$this->last_sql = $this->sql = $this->select.' '.$this->from.' '.$this->join.' '.$this->where.' '.$this->union.' '.$this->groupBy.' '.$this->having.' '.$this->orderBy.' '.$this->limit;
 
 		if (!$return_sql) return $this->sql;
 
@@ -1493,6 +1495,28 @@ class Daniia
 
 		$this->db_instanced();
 		return $this;
+	}
+
+
+
+	public function lastId() {
+		return (integer) $this->last_id;
+	}
+
+	public function lastQuery() {
+		return (string) $this->last_sql;
+	}
+
+	public function getData() {
+		return $this->data;
+	}
+
+
+
+	public function __set($name, $value) {
+		if(!is_object($this->data))
+			$this->data = new \stdClass();
+		$this->data->{$name} = $value;
 	}
 
 
