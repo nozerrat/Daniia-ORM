@@ -35,8 +35,8 @@
 foreach ([
 	"USER" =>"postgres",
 	"PASS" =>"123",
-	"SCHEMA" =>"codeigniter",
-	"DSN" =>"pgsql:port=5432;host=localhost;dbname=codeigniter",
+	"SCHEMA" =>"mySchema",
+	"DSN" =>"pgsql:port=5432;host=localhost;dbname=myDB",
 	]
 as $key => $value
 ) { define(strtoupper($key),$value); }

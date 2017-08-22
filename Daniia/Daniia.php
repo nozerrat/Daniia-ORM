@@ -50,6 +50,7 @@ class Daniia
 	 * Nombre de la Tabla
 	 * @var String
 	 */
+	private $tableOrig = null;
 	protected $table;
 
 	/**
@@ -221,8 +222,7 @@ class Daniia
 	 * @return Object
 	 */
 	private function connection() {
-
-		if ( function_exists('get_instance')) {
+		if ( function_exists('get_instance') && !defined('DSN') ) {
 			/**
 			 * Si el framework Daniia es instalado en el framework CodeIgniter 3
 			 * entonces tomamos la configuración de conexión a la base de datos
@@ -233,9 +233,13 @@ class Daniia
 				@$CI->db ?: $CI->load->database();
 				if(!defined('USER'))   define("USER",   $CI->db->username);
 				if(!defined('PASS'))   define("PASS",   $CI->db->password);
-				if(!defined('SCHEMA')) define("SCHEMA", $CI->db->schema);
+				if(!defined('SCHEMA')) define("SCHEMA",@$CI->db->schema ?: null);
 				if(!defined('DSN'))    define("DSN",    $CI->db->dsn);
 			}
+		}
+
+		if ( $this->tableOrig===null ) {
+			$this->tableOrig = $this->table;
 		}
 
 		if(defined('SCHEMA'))
@@ -281,12 +285,12 @@ class Daniia
 		$this->union   = " ";
 		$this->rows    = [] ;
 		$this->placeholder_data = [] ;
-		$_ENV["from"]  = null;
-		$_ENV["where"] = null;
-		$_ENV["having"]= null;
-		$_ENV["join"]  = null;
-		$_ENV["on"]    = null;
-		$_ENV["union"] = null;
+		$_ENV["daniia_from"]  = null;
+		$_ENV["daniia_where"] = null;
+		$_ENV["daniia_having"]= null;
+		$_ENV["daniia_join"]  = null;
+		$_ENV["daniia_on"]    = null;
+		$_ENV["daniia_union"] = null;
 
 		$this->db_instanced();
 		return $this;
@@ -341,12 +345,12 @@ class Daniia
 	 * @return void
 	 **/
 	private function db_instanced() {
-		$_ENV["from"]   =
-		$_ENV["join"]   =
-		$_ENV["on"]     =
-		$_ENV["where"]  =
-		$_ENV["having"] =
-		$_ENV["union"]  = $this;
+		$_ENV["daniia_from"]   =
+		$_ENV["daniia_join"]   =
+		$_ENV["daniia_on"]     =
+		$_ENV["daniia_where"]  =
+		$_ENV["daniia_having"] =
+		$_ENV["daniia_union"]  = $this;
 	}
 
 
@@ -400,8 +404,13 @@ class Daniia
 	 * @author Carlos Garcia
 	 * @return Array
 	 */
-	public function error() {
-		return $this->resultset->errorInfo();
+	public function error()	{
+		$pdo_error = $this->resultset->errorInfo();
+
+		$error['code']    = @$pdo_error[1] ? $pdo_error[0].'/'.$pdo_error[1] : $pdo_error[0];
+		$error['message'] =  $pdo_error[2];
+
+		return $error;
 	}
 
 	/**
@@ -442,6 +451,11 @@ class Daniia
 		$this->data = $this->rows;
 
 		$this->reset();
+
+		if ( $this->tableOrig!==null ) {
+			$this->table = $this->tableOrig;
+		}
+
 		return $this->data;
 	}
 
@@ -586,7 +600,7 @@ class Daniia
 		$this->saveData = [];
 
 		$error = $this->error();
-		return $error[2] ? false : true;
+		return $error['message'] ? false : true;
 	}
 
 
@@ -765,11 +779,11 @@ class Daniia
 
 		// si es un closure lo ejecutamos
 		if ($table instanceof \Closure) {
-			// el resultado resuelto es almacenado en la variable $_ENV["from"]
+			// el resultado resuelto es almacenado en la variable $_ENV["daniia_from"]
 			// para luego terminar de agruparlo
 			$table(new \Daniia\Daniia());
-			$sql = $_ENV["from"]->get_sql();
-			$_ENV["from"] = null;
+			$sql = $_ENV["daniia_from"]->get_sql();
+			$_ENV["daniia_from"] = null;
 			$sql.= " AS ".($aliasFrom ? $aliasFrom : " _alias_ ");
 			$closure = true;
 		} else {
@@ -859,8 +873,12 @@ class Daniia
 
 			$this->reset();
 
+			if ( $this->tableOrig!==null ) {
+				$this->table = $this->tableOrig;
+			}
+
 			$error = $this->error();
-			return $error[2] ? false : true;
+			return $error['message'] ? false : true;
 		}
 		return false;
 	}
@@ -947,8 +965,13 @@ class Daniia
 				$this->fetch(false);
 
 				$this->reset();
+
+				if ( $this->tableOrig!==null ) {
+					$this->table = $this->tableOrig;
+				}
+
 				$error = $this->error();
-				if($error[2]) return false;
+				if($error['message']) return false;
 			}
 			return true;
 		}
@@ -1021,8 +1044,12 @@ class Daniia
 
 		$this->reset();
 
+		if ( $this->tableOrig!==null ) {
+			$this->table = $this->tableOrig;
+		}
+
 		$error = $this->error();
-		return $error[2] ? false : true;		
+		return $error['message'] ? false : true;		
 	}
 
 
@@ -1050,7 +1077,7 @@ class Daniia
 		if (is_array($column)) {
 			foreach ($column as $key => $val) {
 				// $this->operators
-				if (preg_match('/([\.a-zA-Z0-9_-]+) *(.*)/', $key,$match)) {
+				if (preg_match('/([\.a-zA-Z0-9_-]+) *(.*)/i', $key,$match)) {
 					if (trim($match[2])) {
 						$this->clause(trim($match[1]), trim($match[2]), $val, $scape_quote, $clause, $logicaOperator);
 					}
@@ -1058,7 +1085,6 @@ class Daniia
 						$this->clause(trim($match[1]), $val, $value, $scape_quote, $clause, $logicaOperator);
 					}
 				}
-				
 			}
 			return;
 		}
@@ -1067,8 +1093,8 @@ class Daniia
 		if ($column instanceof \Closure) {
 			// el resultado resuelto es almacenado en la variable $_ENV para luego terminar de agruparlo
 			$column(new \Daniia\Daniia(true));
-			$str = $_ENV[$clauseLower]->{$clauseLower}.")";
-			$_ENV[$clauseLower] = null;
+			$str = $_ENV['daniia_'.$clauseLower]->{$clauseLower}.")";
+			$_ENV['daniia_'.$clauseLower] = null;
 			$closure = true;
 		}
 
@@ -1084,8 +1110,8 @@ class Daniia
 		if ($value instanceof \Closure) {
 			// el resultado resuelto es almacenado en la variable $_ENV para luego terminar de agruparlo
 			$value(new \Daniia\Daniia());
-			$get_sql = $_ENV[$clauseLower]->get_sql();
-			$_ENV[$clauseLower] = null;
+			$get_sql = $_ENV['daniia_'.$clauseLower]->get_sql();
+			$_ENV['daniia_'.$clauseLower] = null;
 			$scape_quote = false;
 			$value = $get_sql;
 		}
@@ -1158,8 +1184,8 @@ class Daniia
 		if ($column instanceof \Closure) {
 			// el resultado resuelto es almacenado en la variable $_ENV para luego terminar de agruparlo
 			$column(new \Daniia\Daniia());
-			$str = $_ENV["on"]->on;
-			$_ENV["on"] = null;
+			$str = $_ENV["daniia_on"]->on;
+			$_ENV["daniia_on"] = null;
 			$closure = true;
 		}
 
@@ -1175,8 +1201,8 @@ class Daniia
 		if ($value instanceof \Closure) {
 			// el resultado resuelto es almacenado en la variable $_ENV para luego terminar de agruparlo
 			$value(new \Daniia\Daniia());
-			$get_sql = $_ENV["on"]->get_sql();
-			$_ENV["on"] = null;
+			$get_sql = $_ENV["daniia_on"]->get_sql();
+			$_ENV["daniia_on"] = null;
 			$value = $get_sql;
 		}
 
@@ -1485,11 +1511,11 @@ class Daniia
 	public function union($closure) {
 		// si es un closure lo ejecutamos
 		if ($closure instanceof \Closure) {
-			// el resultado resuelto es almacenado en la variable $_ENV["union"]
+			// el resultado resuelto es almacenado en la variable $_ENV["daniia_union"]
 			// para luego terminar de agruparlo
 			$closure(new \Daniia\Daniia());
-			$str = $_ENV["union"]->get_sql();
-			$_ENV["union"] = null;
+			$str = $_ENV["daniia_union"]->get_sql();
+			$_ENV["daniia_union"] = null;
 			$this->union .= ' UNION ' . $str;
 		}
 
