@@ -162,6 +162,8 @@ class Daniia
 
 	private $firstData = [];
 
+	private $deleteData = [];
+
 	/**
 	 * Obtiene los nombres de los campos de una tabla dada
 	 * @var Array
@@ -543,11 +545,12 @@ class Daniia
 				if (!is_array($ids)) {
 					$ids = (array) $ids ;
 				}
-			}else{
+			}
+			else {
 				$ids = func_get_args();
 			}
 
-			$this->placeholder_data = $this->saveData = $this->firstData = $ids;
+			$this->placeholder_data = $this->deleteData = $this->saveData = $this->firstData = $ids;
 
 			$placeholder = $this->get_placeholder($ids);
 			$this->where = " WHERE {$this->primaryKey} IN({$placeholder}) ";
@@ -837,9 +840,17 @@ class Daniia
 
 			$placeholders = implode(",", $placeholders);
 
-			$returning = $returning_id ? 'RETURNING '.$this->primaryKey : '';
 
-			$this->sql = "INSERT INTO {$this->table} {$columns} VALUES {$placeholders} {$returning};";
+			$schema = '';
+			$returning = '';
+			if($this->driver=='pgsql') {
+				if (!preg_match('/\./', $this->table)) {
+					$schema = $this->schema ? $this->schema.'.' : '';	
+				}
+				$returning = $returning_id ? 'RETURNING '.$this->primaryKey : '';
+			}
+
+			$this->sql = "INSERT INTO {$schema}{$this->table} {$columns} VALUES {$placeholders} {$returning};";
 			$this->fetch();
 
 			$this->data = $this->rows;
@@ -921,8 +932,15 @@ class Daniia
 						$where = $this->where;
 				}
 
+				$schema = '';
+				if($this->driver=='pgsql') {
+					if (!preg_match('/\./', $this->table)) {
+						$schema = $this->schema ? $this->schema.'.' : '';	
+					}
+				}
+
 				$placeholders = implode(",", $placeholder);
-				$this->sql = "UPDATE {$this->table} SET {$placeholders}".$where;
+				$this->sql = "UPDATE {$schema}{$this->table} SET {$placeholders}".$where;
 
 				$this->fetch(false);
 
@@ -953,12 +971,21 @@ class Daniia
 		}
 
 		$this->connection();
+		if ( count($this->deleteData) ) {
+			if(is_object($this->data)&&$this->data) {
+				$ids[] = $this->data->{$this->primaryKey};
+			}
 
-		if(is_object($this->data)&&$this->data)
-			$ids[] = $this->data->{$this->primaryKey};
-		if(is_array($this->data)&&$this->data)
-			foreach($this->data as $data)
-				$ids[] = $data->{$this->primaryKey};
+			if(is_array($this->data)&&$this->data) {
+				foreach($this->data as $data)
+					$ids[] = $data->{$this->primaryKey};
+			}
+
+			if (!count( $ids )) {
+				return false;
+			}
+		}
+		$this->deleteData = [];
 
 
 		$placeholder = [];
@@ -979,7 +1006,14 @@ class Daniia
 				$where = $this->where;
 		}
 
-		$this->sql = "DELETE FROM {$this->table}".$where;
+		$schema = '';
+		if($this->driver=='pgsql') {
+			if (!preg_match('/\./', $this->table)) {
+				$schema = $this->schema ? $this->schema.'.' : '';	
+			}
+		}
+
+		$this->sql = "DELETE FROM {$schema}{$this->table}".$where;
 
 		$this->fetch(false);
 
@@ -1009,6 +1043,23 @@ class Daniia
 		$clauseUpper = strtoupper($clause);
 		$clauseLower = strtolower($clause);
 		$this->connection();
+
+
+		if (is_array($column)) {
+			foreach ($column as $key => $val) {
+				// $this->operators
+				if (preg_match('/([\.a-zA-Z0-9_-]+) *(.*)/', $key,$match)) {
+					if (trim($match[2])) {
+						$this->clause(trim($match[1]), trim($match[2]), $val, $scape_quote, $clause, $logicaOperator);
+					}
+					else {
+						$this->clause(trim($match[1]), $val, $value, $scape_quote, $clause, $logicaOperator);
+					}
+				}
+				
+			}
+			return;
+		}
 
 		// si es un closure lo ejecutamos
 		if ($column instanceof \Closure) {

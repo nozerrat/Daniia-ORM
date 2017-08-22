@@ -35,8 +35,8 @@
 foreach ([
 	"USER" =>"postgres",
 	"PASS" =>"123",
-	"SCHEMA" =>"daniia",
-	"DSN" =>"pgsql:port=5432;host=localhost;dbname=daniia",
+	"SCHEMA" =>"codeigniter",
+	"DSN" =>"pgsql:port=5432;host=localhost;dbname=codeigniter",
 	]
 as $key => $value
 ) { define(strtoupper($key),$value); }
@@ -751,6 +751,7 @@ $personas = new Personas;
  * WHERE
  **/
 //['=', '<', '>', '<=', '>=', '<>', '!=','like', 'not like', 'in']
+
 // $r = $daniia->table("personas")->where("id",'like',"%1%")->first();
 // var_dump($daniia->sql);
 // var_dump($r);
@@ -887,6 +888,51 @@ $personas = new Personas;
 // var_dump($r);
 // echo "<hr>";
 
+// $r = $daniia->table("personas")->where(['nombre'=>'carlos'])->first();
+// var_dump($daniia->sql);
+// var_dump($r);
+// echo "<hr>";
+
+// $r = $daniia->table("personas")->where(['nombre !='=>'carlos'])->first();
+// var_dump($daniia->sql);
+// var_dump($r);
+// echo "<hr>";
+
+// $r = $daniia->table("personas")->where(['nombre'=>[4,5,6,7]])->first();
+// var_dump($daniia->sql);
+// var_dump($r);
+// echo "<hr>";
+
+// $r = $daniia->table("personas")->where(['nombre in'=>[4,5,6,7]])->first();
+// var_dump($daniia->sql);
+// var_dump($r);
+// echo "<hr>";
+
+// $r = $daniia
+//    ->table("personas")
+//    ->where(["personas.id"=>function($query) {
+//       $query
+//          ->table("personas")
+//          ->select()
+//          ->where("id",4)
+//          ->limit(1);
+//    }])->first();
+// var_dump($daniia->sql);
+// var_dump($r);
+// echo "<hr>";
+
+// $r = $daniia
+//    ->table("personas")
+//    ->where(["personas.id !="=>function($query) {
+//       $query
+//          ->table("personas")
+//          ->select()
+//          ->where("id",4)
+//          ->limit(1);
+//    }])->first();
+// var_dump($daniia->sql);
+// var_dump($r);
+// echo "<hr>";
 
 
 /**

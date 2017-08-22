@@ -326,6 +326,37 @@ $daniia->table("personas")->where("personas.id","=",function($query) {
 $daniia->table("personas")->where("id",'in',function(Daniia $daniia){
 	$daniia->table('personas')->select('id');
 })->first();
+
+
+
+
+$daniia->table("personas")->where(['nombre'=>'carlos'])->first();
+
+$daniia->table("personas")->where(['nombre !='=>'carlos'])->first();
+
+$daniia->table("personas")->where(['nombre'=>[4,5,6,7]])->first();
+
+$daniia->table("personas")->where(['nombre in'=>[4,5,6,7]])->first();
+
+$daniia
+->table("personas")
+->where(["personas.id"=>function($query) {
+   $query
+      ->table("personas")
+      ->select()
+      ->where("id",4)
+      ->limit(1);
+}])->first();
+
+$daniia
+->table("personas")
+->where(["personas.id !="=>function($query) {
+   $query
+      ->table("personas")
+      ->select()
+      ->where("id",4)
+      ->limit(1);
+}])->first();
 ```
 
 ### Having 
