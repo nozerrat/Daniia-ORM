@@ -484,7 +484,7 @@ class Daniia
 		if(!count($this->firstData))
 			$this->get();
 
-		if(is_array($this->data) && count($this->data) > 1) {
+		if(is_array($this->data) && count($this->data) >= 1) {
 			$this->saveData = [];
 			$this->saveData[] = true;
 			$this->data = @$this->data[0];
