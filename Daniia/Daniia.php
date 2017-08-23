@@ -161,11 +161,11 @@ class Daniia
 	 * Obtiene la ID de un registro para salvar los datos consultados
 	 * @var Array
 	 */
-	private $saveData = [];
+	private $saveData = FALSE;
 
-	private $firstData = [];
+	private $firstData = FALSE;
 
-	private $deleteData = [];
+	private $deleteData = FALSE;
 
 	/**
 	 * Obtiene los nombres de los campos de una tabla dada
@@ -222,7 +222,7 @@ class Daniia
 	 * @return Object
 	 */
 	private function connection() {
-		if ( function_exists('get_instance') && !defined('DSN') ) {
+		if ( function_exists('get_instance') && !$this->id_conn ) {
 			/**
 			 * Si el framework Daniia es instalado en el framework CodeIgniter 3
 			 * entonces tomamos la configuración de conexión a la base de datos
@@ -258,7 +258,7 @@ class Daniia
 		}
 		
 		try {
-			if(!$this->id_conn)
+			if ( !$this->id_conn )
 				$this->id_conn = new \PDO($this->dsn, $this->user, $this->pass);
 		} catch (\PDOException $e) {
 			die("Error: " . $e->getMessage() . "<br/>");
@@ -328,6 +328,22 @@ class Daniia
 		}
 
 		return $this;
+	}
+
+	/**
+	 * Comprueba si un array es asociativo
+	 * @author Carlos Garcia
+	 * @param String $array
+	 * @return String
+	 */
+	private function is_assoc( array $array ) {
+
+	     foreach(array_keys($array) as $key) {
+	         if (!is_int($key)) return true;
+	     }
+
+	     return false;
+
 	}
 
 	/**
@@ -405,10 +421,15 @@ class Daniia
 	 * @return Array
 	 */
 	public function error()	{
-		$pdo_error = $this->resultset->errorInfo();
-
-		$error['code']    = @$pdo_error[1] ? $pdo_error[0].'/'.$pdo_error[1] : $pdo_error[0];
-		$error['message'] =  $pdo_error[2];
+		if ($this->resultset) {
+			$pdo_error        = $this->resultset->errorInfo();
+			$error['code']    = @$pdo_error[1] ? $pdo_error[0].'/'.$pdo_error[1] : $pdo_error[0];
+			$error['message'] =  $pdo_error[2];
+		} 
+		else {
+			$error['code']    = '00000';
+			$error['message'] = 'ERROR: No hay conexión a la base de datos';
+		}
 
 		return $error;
 	}
@@ -499,16 +520,15 @@ class Daniia
 	 * @return Object
 	 */
 	public function first() {
-		if(!count($this->firstData))
+		if(!$this->firstData)
 			$this->get();
 
 		if(is_array($this->data) && count($this->data) >= 1) {
-			$this->saveData = [];
-			$this->saveData[] = true;
-			$this->data = @$this->data[0];
+			$this->saveData = TRUE;
+			$this->data = $this->data[0];
 		}
 
-		$this->firstData = [];
+		$this->firstData = FALSE;
 		return $this->data;
 	}
 
@@ -566,10 +586,16 @@ class Daniia
 				$ids = func_get_args();
 			}
 
-			$this->placeholder_data = $this->deleteData = $this->saveData = $this->firstData = $ids;
+			$this->firstData = $this->saveData = $this->deleteData = TRUE;
 
-			$placeholder = $this->get_placeholder($ids);
-			$this->where = " WHERE {$this->primaryKey} IN({$placeholder}) ";
+			if ( $this->is_assoc( $ids ) ) {
+				$this->where( $ids );
+			}
+			else {
+				$this->placeholder_data = $ids;
+				$placeholder = $this->get_placeholder($ids);
+				$this->where = " WHERE {$this->primaryKey} IN({$placeholder}) ";
+			}
 
 			$this->get();
 
@@ -589,18 +615,18 @@ class Daniia
 	 * @return boolean
 	 */
 	public function save() {
-		if (count($this->saveData)===1 && @$this->data->{$this->primaryKey}) {
+		if ($this->saveData && @$this->data->{$this->primaryKey}) {
 			$this->update((array)$this->data);
 		}
 
-		if (count($this->saveData)===1 && !@$this->data->{$this->primaryKey}) {
+		if ($this->saveData && !@$this->data->{$this->primaryKey}) {
 			$this->insert((array)$this->data);
 		}
 
-		$this->saveData = [];
+		$this->saveData = FALSE;
 
 		$error = $this->error();
-		return $error['message'] ? false : true;
+		return $error['message'] ? FALSE : TRUE;
 	}
 
 
@@ -838,15 +864,18 @@ class Daniia
 
 			$placeholders = [];
 			$this->placeholder_data = [];
+
 			foreach ($datas as $data) {
 				$placeholder = [];
 				foreach($this->columnsData as $column) {
 					if(isset($data[$column])) {
-						if($data[$column]) {
-							$this->placeholder_data[] = $data[$column];
+						$placeholder[$column] = "NULL";
+						if ( gettype($data[$column])==='boolean' )
+							$placeholder[$column] = $data[$column] ? 'TRUE' : 'FALSE';
+						elseif ( $data[$column]!=='' && $data[$column]!==NULL ) {
 							$placeholder[$column] = "?";
-						}else
-							$placeholder[$column] = "NULL";
+							$this->placeholder_data[] = $data[$column];
+						}
 					}
 				}
 				$placeholders[] = "(".implode(",", $placeholder).")";
@@ -866,7 +895,8 @@ class Daniia
 				$returning = $returning_id ? 'RETURNING '.$this->primaryKey : '';
 			}
 
-			$this->sql = "INSERT INTO {$schema}{$this->table} {$columns} VALUES {$placeholders} {$returning};";
+			$this->last_sql = $this->sql = "INSERT INTO {$schema}{$this->table} {$columns} VALUES {$placeholders} {$returning};";
+			
 			$this->fetch();
 
 			$this->data = $this->rows;
@@ -889,16 +919,17 @@ class Daniia
 	 * @param $datas Array
 	 * @return integer
 	 */
-	public function insertGetId($datas) {
+	public function insertGetId(array $datas) {
+		$this->connection();
 		$this->last_id = -1;
-		if($this->driver=='pgsql') {
-			$this->insert($datas,true);
+		if ( $this->driver=='pgsql' ) {
+			$this->insert( $datas, true );
 			if ( @$this->data[0] ) {
 				$this->last_id = @$this->data[0]->{$this->primaryKey};
 			}
 		}
 		else {
-			$this->insert($datas);
+			$this->insert( $datas );
 			$this->last_id = $this->id_conn->lastInsertId();
 		}
 		return (int) $this->last_id;
@@ -921,33 +952,32 @@ class Daniia
 			$this->placeholder_data = [];
 			foreach ($datas as $data) {
 				$placeholder = [];
-				$isID = false;
-
+				$isID = NULL;
 				foreach($this->columnsData as $column) {
 					if(isset($data[$column])) {
 						if($this->primaryKey==$column) {
 							$isID = $data[$column];
-						} else {
-							if((is_string($data[$column]) && $data[$column]) || is_numeric($data[$column])) {
+						} 
+						else {
+							$placeholder[$column] = "{$column}=NULL";
+							if ( gettype($data[$column])==='boolean' )
+								$placeholder[$column] = $data[$column] ? "{$column}=TRUE" : "{$column}=FALSE";
+							elseif ( $data[$column]!=='' && $data[$column]!==NULL ) {
+								$placeholder[$column] = "{$column}=?";
 								$this->placeholder_data[] = $data[$column];
-								$placeholder[] = "{$column}=?";
-							} else {
-								if($data[$column]===true ) $placeholder[] = "{$column}=TRUE";
-								elseif($data[$column]===false) $placeholder[] = "{$column}=FALSE";
-								else $placeholder[] = "{$column}=NULL";
 							}
 						}
 					}
 				}
-
 				$where = '';
-				if($isID) {
+				if($isID!==NULL) {
 					$this->placeholder_data[] = $isID;
 					if (preg_match("/WHERE/", $this->where))
 						$where = $this->where." AND {$this->primaryKey}=? ";
 					else
 						$where = " WHERE {$this->primaryKey}=? ";
-				}else{
+				}
+				else {
 					if (preg_match("/WHERE/", $this->where))
 						$where = $this->where;
 				}
@@ -960,7 +990,7 @@ class Daniia
 				}
 
 				$placeholders = implode(",", $placeholder);
-				$this->sql = "UPDATE {$schema}{$this->table} SET {$placeholders}".$where;
+				$this->last_sql = $this->sql = "UPDATE {$schema}{$this->table} SET {$placeholders} {$where}";
 
 				$this->fetch(false);
 
@@ -984,49 +1014,55 @@ class Daniia
 	 * @param $ids mixed
 	 * @return boolean
 	 */
-	public function delete($ids=[]) {
+	public function delete( $ids = [] ) {
 		if (func_num_args()>0) {
 			if (func_num_args()==1) {
 				if (!is_array($ids)) {
 					$ids = (array) $ids;
 				}
-			}else{
+			}
+			else {
 				$ids = func_get_args();
 			}
 		}
 
 		$this->connection();
-		if ( count($this->deleteData) ) {
-			if(is_object($this->data)&&$this->data) {
+		if ( $this->deleteData ) {
+			if(is_object($this->data) && $this->data) {
 				$ids[] = $this->data->{$this->primaryKey};
 			}
 
-			if(is_array($this->data)&&$this->data) {
+			if(is_array($this->data) && $this->data) {
 				foreach($this->data as $data)
 					$ids[] = $data->{$this->primaryKey};
 			}
 
+			$this->deleteData = FALSE;
+
 			if (!count( $ids )) {
-				return false;
+				return FALSE;
 			}
+			
 		}
-		$this->deleteData = [];
 
-
-		$placeholder = [];
-		foreach($ids as $id){
-			$this->placeholder_data[] = $id;
-			$placeholder[] = "?";
+		if ( $this->is_assoc( $ids ) ) {
+			$this->where( $ids );
+			$ids = NULL;
 		}
-		$placeholder  = implode(",", $placeholder);
+		else {
+			$this->placeholder_data = $ids;
+			$placeholder = $this->get_placeholder($ids);
+		}
+		
 
 		$where = '';
-		if($ids) {
+		if ( $ids ) {
 			if (preg_match("/WHERE/", $this->where))
-				$where = $this->where." AND {$this->primaryKey} IN({$placeholder}) ";
+				$where = " {$this->where} AND {$this->primaryKey} IN({$placeholder}) ";
 			else
 				$where = " WHERE {$this->primaryKey} IN({$placeholder}) ";
-		}else{
+		}
+		else {
 			if (preg_match("/WHERE/", $this->where))
 				$where = $this->where;
 		}
@@ -1038,7 +1074,7 @@ class Daniia
 			}
 		}
 
-		$this->sql = "DELETE FROM {$schema}{$this->table}".$where;
+		$this->last_sql = $this->sql = "DELETE FROM {$schema}{$this->table} {$where}";
 
 		$this->fetch(false);
 
@@ -1049,7 +1085,7 @@ class Daniia
 		}
 
 		$error = $this->error();
-		return $error['message'] ? false : true;		
+		return $error['message'] ? false : true;
 	}
 
 

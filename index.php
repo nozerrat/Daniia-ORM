@@ -35,8 +35,8 @@
 foreach ([
 	"USER" =>"postgres",
 	"PASS" =>"123",
-	"SCHEMA" =>"mySchema",
-	"DSN" =>"pgsql:port=5432;host=localhost;dbname=myDB",
+	"SCHEMA" =>"qhseschema",
+	"DSN" =>"pgsql:port=5432;host=localhost;dbname=QHSE",
 	]
 as $key => $value
 ) { define(strtoupper($key),$value); }
@@ -127,7 +127,7 @@ $personas = new Personas;
 // var_dump($r);
 // echo "<hr>";
 
-// $r = $daniia->table("personas")->primaryKey("id")->where(1,1)->update([
+// $r = $daniia->table("personas")->primaryKey("myId")->where(1,1)->update([
 // 		["id"=>2,"ci"=>4,"nombre"=>"Petra","apellido"=>"","otros"=>"otros"],
 // 		["id"=>3,"ci"=>5,"nombre"=>"José","apellido"=>"Jill"],
 // 		["id"=>4,"ci"=>6,"nombre"=>"Jhon","apellido"=>"Peña","otros"=>"otros"],
@@ -146,45 +146,55 @@ $personas = new Personas;
 // var_dump($r);
 // echo "<hr>";
 
-// $r = $daniia->primaryKey('id')->table("personas")->delete([3]);
+// $r = $daniia->table("personas")->delete( ["id"=>2] );
 // var_dump($daniia->last_sql);
 // var_dump($r);
 // echo "<hr>";
 
-// $r = $daniia->primaryKey('id')->table("personas")->where("id",4)->delete(1);
+// $r = $daniia->table("personas")->delete( ["id <>"=>2] );
 // var_dump($daniia->last_sql);
 // var_dump($r);
 // echo "<hr>";
 
-// $r = $daniia->primaryKey('id')->table("personas")->delete(1,4);
+// $r = $daniia->table("personas")->delete([3]); // Toma por defecto la primaryKey "id"
 // var_dump($daniia->last_sql);
 // var_dump($r);
 // echo "<hr>";
 
-// $r = $daniia->primaryKey('id')->table("personas")->where("id",[5,6,7])->delete();
+// $r = $daniia->primaryKey('myId')->table("personas")->where("id",4)->delete(1);
 // var_dump($daniia->last_sql);
 // var_dump($r);
 // echo "<hr>";
 
-// $r = $daniia->primaryKey('id')->table("personas")->find([8])->delete();
+// $r = $daniia->primaryKey('myId')->table("personas")->delete(1,4);
 // var_dump($daniia->last_sql);
-// var_dump($daniia->data);
 // var_dump($r);
 // echo "<hr>";
 
-// $r = $daniia->primaryKey('id')->table("personas")->find([11,12,13])->delete();
+// $r = $daniia->primaryKey('myId')->table("personas")->where("id",[5,6,7])->delete(); // Ignora el primaryKey
 // var_dump($daniia->last_sql);
-// var_dump($daniia->data);
 // var_dump($r);
 // echo "<hr>";
 
-// $r = $daniia->primaryKey('id')->table("personas")->where("id",10)->orWhere("id",14)->delete();
+// $r = $daniia->primaryKey('myId')->table("personas")->find([8])->delete();
 // var_dump($daniia->last_sql);
 // var_dump($daniia->data);
 // var_dump($r);
 // echo "<hr>";
 
-// $r = $daniia->primaryKey('id')->table("personas")->delete();
+// $r = $daniia->primaryKey('myId')->table("personas")->find([11,12,13])->delete();
+// var_dump($daniia->last_sql);
+// var_dump($daniia->data);
+// var_dump($r);
+// echo "<hr>";
+
+// $r = $daniia->primaryKey('myId')->table("personas")->where("id",10)->orWhere("id",14)->delete(); // Ignora el primaryKey
+// var_dump($daniia->last_sql);
+// var_dump($daniia->data);
+// var_dump($r);
+// echo "<hr>";
+
+// $r = $daniia->primaryKey('myId')->table("personas")->delete();
 // var_dump($daniia->last_sql);
 // var_dump($daniia->data);
 // var_dump($r);
@@ -569,17 +579,27 @@ $personas = new Personas;
 /**
  * FIND
  **/
-// $r = $daniia->primaryKey('id')->table('personas')->find(1);
+// $r = $daniia->primaryKey('myId')->table('personas')->find(1);
 // var_dump($daniia->last_sql);
 // var_dump($r->data);
 // echo "<hr>";
 
-// $r = $daniia->primaryKey('id')->table('personas')->find(1,2);
+// $r = $daniia->primaryKey('myId')->table('personas')->find(1,2);
 // var_dump($daniia->last_sql);
 // var_dump($r->data);
 // echo "<hr>";
 
-// $r = $daniia->primaryKey('id')->table('personas')->find([2]);
+// $r = $daniia->primaryKey('myId')->table('personas')->find(['id'=>1,'otro'=>2]); // Ignora la primaryKey
+// var_dump($daniia->last_sql);
+// var_dump($r->data);
+// echo "<hr>";
+
+// $r = $daniia->table('personas')->find(['id !='=>1,'otro <>'=>2]);
+// var_dump($daniia->last_sql);
+// var_dump($r->data);
+// echo "<hr>";
+
+// $r = $daniia->primaryKey('myId')->table('personas')->find([2]);
 // var_dump($daniia->last_sql);
 // var_dump($daniia->id);
 // var_dump($daniia->ci);
@@ -613,12 +633,12 @@ $personas = new Personas;
 // var_dump($daniia->data);
 // echo "<hr>";
 
-// $r = $daniia->table('personas')->primaryKey('id')->find([1,2])->first();
+// $r = $daniia->table('personas')->primaryKey('myId')->find([1,2])->first();
 // var_dump($daniia->last_sql);
 // var_dump($daniia->data);
 // echo "<hr>";
 
-// $r = $daniia->table('personas')->primaryKey('id')->find([1,2])->firstArray();
+// $r = $daniia->table('personas')->primaryKey('myId')->find([1,2])->firstArray();
 // var_dump($daniia->last_sql);
 // var_dump($daniia->data);
 // echo "<hr>";
@@ -627,7 +647,7 @@ $personas = new Personas;
 /**
  * SAVE
  **/
-// $daniia->primaryKey('id')->table('personas')->find(2);
+// $daniia->primaryKey('myId')->table('personas')->find(2);
 // $daniia->nombre = "yyyyyyyy";
 // $r = $daniia->save();//UPDATE
 // var_dump($daniia->last_sql);
@@ -635,7 +655,7 @@ $personas = new Personas;
 // var_dump($r);
 // echo "<hr>";
 
-// $daniia->primaryKey('id')->table('personas')->find(1,2)->first();
+// $daniia->primaryKey('myId')->table('personas')->find(1,2)->first();
 // $daniia->nombre = "yyyyyyyy";
 // $r = $daniia->save();//UPDATE
 // var_dump($daniia->last_sql);
@@ -643,7 +663,7 @@ $personas = new Personas;
 // var_dump($r);
 // echo "<hr>";
 
-// $daniia->primaryKey('id')->table('personas')->find('00')->first();// registro no existe..
+// $daniia->primaryKey('myId')->table('personas')->find('00')->first();// registro no existe..
 // $daniia->ci       = "123456789";
 // $daniia->nombre   = "Carlos";
 // $daniia->apellido = "Garcia";
@@ -653,7 +673,7 @@ $personas = new Personas;
 // var_dump($r);
 // echo "<hr>";
 
-// $daniia->primaryKey('id')->table('personas');
+// $daniia->primaryKey('myId')->table('personas');
 // $daniia->ci       = "123456789";
 // $daniia->nombre   = "Carlos";
 // $daniia->apellido = "Garcia";
