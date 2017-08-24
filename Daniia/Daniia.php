@@ -43,15 +43,15 @@ class Daniia
 	 * Nombre del escquema a conectarse
 	 * @var String
 	 */
-	private $schema;
+	private $schema = '';
 
 
 	/**
 	 * Nombre de la Tabla
 	 * @var String
 	 */
-	private $tableOrig = null;
-	protected $table;
+	private $tableOrig = NULL;
+	protected $table = NULL;
 
 	/**
 	 * Contiene en nombre de la clave primaria de la tabla
@@ -63,7 +63,7 @@ class Daniia
 	 * Contiene los SELECT de las sentencia SQL
 	 * @var String
 	 */
-	private $select = "SELECT *";
+	private $select = "SELECT * ";
 
 	/**
 	 * Contiene los FROM de las sentencia SQL
@@ -233,12 +233,16 @@ class Daniia
 				@$CI->db ?: $CI->load->database();
 				if(!defined('USER'))   define("USER",   $CI->db->username);
 				if(!defined('PASS'))   define("PASS",   $CI->db->password);
-				if(!defined('SCHEMA')) define("SCHEMA",@$CI->db->schema ?: null);
+				if(!defined('SCHEMA')) define("SCHEMA",@$CI->db->schema ?: '');
 				if(!defined('DSN'))    define("DSN",    $CI->db->dsn);
 			}
 		}
 
-		if ( $this->tableOrig===null ) {
+      if (static::class!=='Daniia\Daniia' && $this->table===NULL) {
+      	$this->table = strtolower( static::class );
+      }
+
+		if ( $this->tableOrig===NULL ) {
 			$this->tableOrig = $this->table;
 		}
 
@@ -452,11 +456,9 @@ class Daniia
 	 * @param boolean $return_sql
 	 * @return Array|object
 	 */
-	public function get($return_sql=true) {
+	public function get($return_sql=TRUE) {
 		$this->connection();
-
-
-		if (preg_match('/\./', $this->table)) {
+		if (preg_match('/\./', $this->table) || !$this->schema ) {
 			$this->from = str_replace("_table_", $this->table, $this->from);
 		}
 		else {
@@ -473,7 +475,7 @@ class Daniia
 
 		$this->reset();
 
-		if ( $this->tableOrig!==null ) {
+		if ( $this->tableOrig!==NULL ) {
 			$this->table = $this->tableOrig;
 		}
 
@@ -486,7 +488,7 @@ class Daniia
 	 * @return boolean $return_sql
 	 * @return Array
 	 */
-	public function getArray($return_sql=true) {
+	public function getArray($return_sql=TRUE) {
 		$this->get($return_sql);
 		$this->data = array_map(function($v){return(array)$v;},$this->data);
 		return $this->data;
@@ -520,9 +522,9 @@ class Daniia
 	 * @return Object
 	 */
 	public function first() {
-		if(!$this->firstData)
+		if(!$this->firstData) {
 			$this->get();
-
+		}
 		if(is_array($this->data) && count($this->data) >= 1) {
 			$this->saveData = TRUE;
 			$this->data = $this->data[0];
@@ -592,9 +594,7 @@ class Daniia
 				$this->where( $ids );
 			}
 			else {
-				$this->placeholder_data = $ids;
-				$placeholder = $this->get_placeholder($ids);
-				$this->where = " WHERE {$this->primaryKey} IN({$placeholder}) ";
+				$this->where( $this->primaryKey, 'in', $ids );
 			}
 
 			$this->get();
@@ -615,11 +615,13 @@ class Daniia
 	 * @return boolean
 	 */
 	public function save() {
+		$updated = FALSE;
 		if ($this->saveData && @$this->data->{$this->primaryKey}) {
 			$this->update((array)$this->data);
+			$updated = TRUE;
 		}
 
-		if ($this->saveData && !@$this->data->{$this->primaryKey}) {
+		if (($this->saveData && !@$this->data->{$this->primaryKey}) || !$updated) {
 			$this->insert((array)$this->data);
 		}
 
@@ -740,7 +742,7 @@ class Daniia
 			$table = [$table];
 		
 		$schema = '';
-		if($this->driver=='pgsql')
+		if ($this->driver=='pgsql' && $this->schema)
 			$schema = $this->schema ? $this->schema.'.' : '';
 
 		$tmp_table = [];
@@ -819,7 +821,7 @@ class Daniia
 				$table = [$table];
 
 			$schema = '';
-			if($this->driver=='pgsql')
+			if ($this->driver=='pgsql' && $this->schema)
 				$schema = $this->schema ? $this->schema.'.' : '';
 
 			$tmp_table = [];
@@ -838,6 +840,7 @@ class Daniia
 		if ($this->extended && is_string($table) && !$closure) {
 			$table = $schema.$this->table.",".$table;
 		}
+
 
 		if (!$this->bool_group) {
 			$this->from = str_replace("_table_", ($closure ? $sql : ($table ?: $this->table)), $this->from);
@@ -888,7 +891,7 @@ class Daniia
 
 			$schema = '';
 			$returning = '';
-			if($this->driver=='pgsql') {
+			if ($this->driver=='pgsql' && $this->schema) {
 				if (!preg_match('/\./', $this->table)) {
 					$schema = $this->schema ? $this->schema.'.' : '';	
 				}
@@ -903,14 +906,14 @@ class Daniia
 
 			$this->reset();
 
-			if ( $this->tableOrig!==null ) {
+			if ( $this->tableOrig!==NULL ) {
 				$this->table = $this->tableOrig;
 			}
 
 			$error = $this->error();
-			return $error['message'] ? false : true;
+			return $error['message'] ? FALSE : TRUE;
 		}
-		return false;
+		return FALSE;
 	}
 
 	/**
@@ -921,9 +924,9 @@ class Daniia
 	 */
 	public function insertGetId(array $datas) {
 		$this->connection();
-		$this->last_id = -1;
+		$this->last_id = NULL;
 		if ( $this->driver=='pgsql' ) {
-			$this->insert( $datas, true );
+			$this->insert( $datas, TRUE );
 			if ( @$this->data[0] ) {
 				$this->last_id = @$this->data[0]->{$this->primaryKey};
 			}
@@ -948,8 +951,13 @@ class Daniia
 
 			$this->connection();
 			$this->columns();
-
+			
+			$this->last_sql = [];
 			$this->placeholder_data = [];
+
+			$where = $this->where;
+			$whereTemp = str_replace('WHERE', '', $this->where);
+
 			foreach ($datas as $data) {
 				$placeholder = [];
 				$isID = NULL;
@@ -969,28 +977,28 @@ class Daniia
 						}
 					}
 				}
-				$where = '';
+
+
 				if($isID!==NULL) {
-					$this->placeholder_data[] = $isID;
-					if (preg_match("/WHERE/", $this->where))
-						$where = $this->where." AND {$this->primaryKey}=? ";
-					else
-						$where = " WHERE {$this->primaryKey}=? ";
-				}
-				else {
-					if (preg_match("/WHERE/", $this->where))
+					$this->where = '';
+					$this->where( $this->primaryKey, '=', $isID );
+					if (trim($whereTemp)) {
+						$where = $this->where .' AND '. $whereTemp;
+					}
+					else {
 						$where = $this->where;
+					}
 				}
 
 				$schema = '';
-				if($this->driver=='pgsql') {
+				if($this->driver=='pgsql' && $this->schema) {
 					if (!preg_match('/\./', $this->table)) {
 						$schema = $this->schema ? $this->schema.'.' : '';	
 					}
 				}
 
 				$placeholders = implode(",", $placeholder);
-				$this->last_sql = $this->sql = "UPDATE {$schema}{$this->table} SET {$placeholders} {$where}";
+				$this->last_sql[] = $this->sql = "UPDATE {$schema}{$this->table} SET {$placeholders} {$where}";
 
 				$this->fetch(false);
 
@@ -1068,7 +1076,7 @@ class Daniia
 		}
 
 		$schema = '';
-		if($this->driver=='pgsql') {
+		if($this->driver=='pgsql' && $this->schema) {
 			if (!preg_match('/\./', $this->table)) {
 				$schema = $this->schema ? $this->schema.'.' : '';	
 			}
@@ -1566,7 +1574,7 @@ class Daniia
 	}
 
 	public function lastQuery() {
-		return (string) $this->last_sql;
+		return $this->last_sql;
 	}
 
 	public function getData() {

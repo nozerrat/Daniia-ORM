@@ -474,7 +474,7 @@ $daniia->getData();
 Daniia {
 	// Obtener datos resultante despues de la ejecución 
 	public integer lastId( void );
-	public string lastQuery( void );
+	public mixed lastQuery( void );
 	public mixed getData( void );
 	public array error( void );
 
