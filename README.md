@@ -26,15 +26,16 @@ Daniia ORM es compatible con:
 * Oracle 
 
 ## Conección a la Base de Datos
-Lo primero que necesitaremos es registrar los datos de conexión para luego usar la herramienta Daniia:
+Lo primero que necesitaremos es declarar las constantes para luego registrar los datos de conexión para poder usar el Framework Daniia, las constantes son USER, PASS, SCHEMA y [DSN](http://php.net/manual/es/pdo.drivers.php).
 
+por ejemplo:
 ```php
 // Conexión con la Base de Datos MySql
 define("USER","root");
 define("PASS","1234");
 define("DSN","mysql:port=3306;host=localhost;dbname=test");
 ```
-o otro ejemplo:
+otro ejemplo:
 ```php
 // Conexión con la Base de Datos PostgreSql
 define("USER","postgres");
@@ -54,14 +55,15 @@ en el caso de hederar la clase Daniia hay que hederar la clase BaseDaniia
 use Daniia\Daniia;
 use Daniia\BaseDaniia;
 class Personas extends BaseDaniia {
-	protected $table = "personas"; //Nombre de la tabla
-	protected $primaryKey = "id"; //Clave primaria de la tabla
+   protected $table = "personas"; //Nombre de la tabla
+   protected $primaryKey = "id"; //Clave primaria de la tabla
 }
 $personas = new Personas();
 $personas->get();// consultamos todos los datos
 ```
 ## Uso y Ejemplos
-Para usar Daniia ORM es muy falcil, aquí aplicaremos algunos ejemplos del uso de la herramienta:
+Para usar Daniia ORM es muy falcil, aquí aplicaremos algunos ejemplos del uso del Frameword:
+
 ### Insert
 ```php
 // Insert simple
@@ -69,23 +71,25 @@ $daniia->table("personas")->insert(["ci"=>1,"nombre"=>"Carlos","apellido"=>"Garc
 
 // Insert multiples
 $daniia->table("personas")->insert([
-	["ci"=>1,"nombre"=>"Carlos","apellido"=>"Garcia"],
-	["ci"=>2,"nombre"=>"Carlos","apellido"=>"Garcia"],
-	["ci"=>3,"nombre"=>"Carlos","apellido"=>"Garcia"],
+   ["ci"=>1,"nombre"=>"Carlos","apellido"=>"Garcia"],
+   ["ci"=>2,"nombre"=>"Carlos","apellido"=>"Garcia"],
+   ["ci"=>3,"nombre"=>"Carlos","apellido"=>"Garcia"],
 ]);
 ```
+
 ### Update
 ```php
 // Update simple
 $daniia->table("personas")->primaryKey("id")->update(["id"=>1,"ci"=>"1111","nombre"=>"aa","apellido"=>"aa"]);
+
 // o en caso de que la ID no este esablecida en los datos
 $daniia->table("personas")->where("id",1)->update(["ci"=>"1111","nombre"=>"aa","apellido"=>"aa"]);
 
 // Update multiples
 $daniia->table("personas")->primaryKey("id")->update([
-	["id"=>1,"ci"=>4,"nombre"=>"Petra","apellido"=>""],
-	["id"=>2,"ci"=>5,"nombre"=>"José","apellido"=>"Jill"],
-	["id"=>3,"ci"=>6,"nombre"=>"Jhon","apellido"=>"Peña"],
+   ["id"=>1,"ci"=>4,"nombre"=>"Petra","apellido"=>""],
+   ["id"=>2,"ci"=>5,"nombre"=>"José","apellido"=>"Jill"],
+   ["id"=>3,"ci"=>6,"nombre"=>"Jhon","apellido"=>"Peña"],
 ]);
 ```
 
@@ -115,7 +119,9 @@ $daniia->table('personas')->select(['ci','nombre'])->first();
 ```
 
 ### Operadores validos
-Los operadores que soporta la framework Daniia son: =, <, >, <=, >=, <>, !=, like, not like, in, is, is not, ilike, between, not between. Por ejemplo:
+Los operadores que soporta la Framework Daniia son: =, <, >, <=, >=, <>, !=, like, not like, in, is, is not, ilike, between, not between. 
+
+Por ejemplo:
 ```php
 /**
  * OPERADORES VALIDOS
@@ -136,7 +142,7 @@ $daniia->table("personas")->where("id is true")->first();
 ```
 
 ### Table
-El método table se encarga de asignar el nombre de la tabla al framework
+El método table se encarga de asignar el nombre a la tabla que se desee consultar
 ```php
 $daniia->table('personas')->first();
 $daniia->table(['personas'])->first();
@@ -148,6 +154,7 @@ $daniia->table(['personas','oficina'])->first();
 
 ### From
 El método from es similar al método table, se usa para asignar los nombres de las tablas a consultar, pero si en su argumento especificamos un closure indicará un sub-quey contenido en la clausula from.
+
 ```php
 $daniia->from('personas')->first();
 $daniia->from(['personas'])->first();
@@ -157,30 +164,30 @@ $daniia->from(['personas','oficina'])->first();
 
 // especificamos un sub-query
 $daniia->from(function (Daniia $daniia) {
-	$daniia->table("personas");
+   $daniia->table("personas");
 })->first();
 
 // con alias para el sub-query contenido en el método from
 $daniia->from(function (Daniia $daniia) {
-	$daniia->table("personas");
-}, "Alias")->first();
+   $daniia->table("personas");
+}, "myAlias")->first();
 
 // otro ejemplo de sub-query anidado contenido en el clausula from
 $daniia->from(function (Daniia $daniia) {
-	$daniia->from(function (Daniia $daniia) {
-		$daniia->from(function (Daniia $daniia) {
-			$daniia->table("personas");
-		}, "C");
-	}, "B");
+   $daniia->from(function (Daniia $daniia) {
+      $daniia->from(function (Daniia $daniia) {
+         $daniia->table("personas");
+      }, "C");
+   }, "B");
 }, "A")->first();
 
 // otro ejemplo 
 $daniia
 ->select("P.id","P.nombre","P.apellido")
 ->from(function (Daniia $daniia) {
-	$daniia
-	->table("personas")
-	->select("personas.id","personas.nombre","personas.apellido");
+   $daniia
+   ->table("personas")
+   ->select("personas.id","personas.nombre","personas.apellido");
 }, 'P')->first();
 ```
 
@@ -198,39 +205,63 @@ $daniia->table('personas')->leftJoin("oficina","personas.id","oficina.id_persona
 $daniia->table('personas')->rightJoin("oficina","personas.id","oficina.id_personas")->first();
 
 $daniia->table("personas")->join('oficina',"personas.id",function(Daniia $query) {
-	$query->select("personas.id")->from("personas")->where("personas.id","4")->limit(1);
+   $query->select("personas.id")->from("personas")->where("personas.id","4")->limit(1);
 })->first();
 
 $daniia->table('personas')->join("oficina",function(Daniia $daniia) {
-	$daniia->on("personas.id",[1,2,3,4])->orOn("personas.id","<>","oficina.id_personas");
+   $daniia->on("personas.id",[1,2,3,4])->orOn("personas.id","<>","oficina.id_personas");
 })->first();
 
  $daniia->table('personas')->join("oficina alias_a",function(Daniia $daniia) {
-	$daniia->on(function(Daniia $daniia) {
-		$daniia->on("personas.id","alias_a.id_personas");
-	});
+   $daniia->on(function(Daniia $daniia) {
+      $daniia->on("personas.id","alias_a.id_personas");
+   });
 })->join("oficina alias_b",function(Daniia $daniia) {
-	$daniia->on("personas.id",'=',function(Daniia $daniia) {
-		$daniia->table('oficina')->select('id_personas')->where('id_personas',4);
-	});
+   $daniia->on("personas.id",'=',function(Daniia $daniia) {
+      $daniia->table('oficina')->select('id_personas')->where('id_personas',4);
+   });
 })->first();
 
 $daniia->table('personas')->join("oficina",function(Daniia $daniia) {
-	$daniia->on("personas.id",function(Daniia $daniia) {
-		$daniia->select("personas.id")->from("personas")->where("personas.id","4")->limit(1);
-	});
+   $daniia->on("personas.id",function(Daniia $daniia) {
+      $daniia->select("personas.id")->from("personas")->where("personas.id","4")->limit(1);
+   });
 })->first();
 ```
 
-### Get, GetArray, List
+### Get, GetArray
 ```php
 $daniia->table('personas')->get();
 
 $daniia->table('personas')->getArray();
 
+// en caso de que queramos realizar filtros en los datos consultados y queramos contituar consultando solo pasamos un Closure al método get o getArray y lo retornamos
+$daniia->table('personas')->get(function( $data, Daniia $daniia ){
+   // realizar algún filtro
+   return $data;
+});
+
+$daniia->table('personas')->getArray(function( $data, Daniia $daniia ){
+   // realizar algún filtro
+   return $data;
+});
+```
+
+### List
+```php
 $daniia->table('personas')->lists('nombre');
 
 $daniia->table('personas')->lists('nombre','id');
+
+$daniia->table('personas')->lists('nombre',function( $data, Daniia $daniia ){
+   // realizar algún filtro
+   return $data;
+});
+
+$daniia->table('personas')->lists('nombre','id',function( $data, Daniia $daniia ){
+   // realizar algún filtro
+   return $data;
+});
 ```
 
 ###  Find
@@ -246,6 +277,16 @@ echo $daniia->id;
 echo $daniia->ci;
 echo $daniia->nombre;
 echo $daniia->apellido;
+
+$daniia->primaryKey('id')->table('personas')->find(2,function($data, Daniia $daniia) {
+   // realizar algún filtro
+   return $data;
+});
+
+$daniia->primaryKey('id')->table('personas')->find([1,2],function($data, Daniia $daniia) {
+   // realizar algún filtro
+   return $data;
+});
 ```
 
 ### First, FirstArray
@@ -258,6 +299,24 @@ $daniia->table('personas')->where('id',1)->firstArray();
 
 $daniia->table('personas')->primaryKey('id')->find([1,2])->first();
 $daniia->table('personas')->primaryKey('id')->find([1,2])->firstArray();
+
+$daniia->table('personas')->first(function($data, Daniia $daniia) {
+   // realizar algún filtro
+   return $data;
+});
+
+$daniia->table('personas')->firstArray(function($data, Daniia $daniia) {
+   // realizar algún filtro
+   return $data;
+});
+
+$daniia->table('personas')->primaryKey('id')->find([1,2],function($data, Daniia $daniia) {
+   // realizar algún filtro
+   return $data;
+})->first(function($data, Daniia $daniia) {
+   // realizar algún filtro
+   return $data;
+});
 ```
 
 ### Save
@@ -298,33 +357,33 @@ $daniia->table("personas")->where("id",[4,5,6,7])->first();
 $daniia->table("personas")->where("id",'in',[4,5,6,7])->first();
 
 $daniia->table("personas")->where(function (Daniia $daniia) {
-	$daniia->where("id",4)->andWhere("apellido","LIKE","%garcia%");
+   $daniia->where("id",4)->andWhere("apellido","LIKE","%garcia%");
 })->first();
 
 $daniia->table("personas")->where(function (Daniia $daniia) {
-	$daniia->where("id",4);
+   $daniia->where("id",4);
 })->orWhere(function (Daniia $daniia){
-	$daniia->where("id",4);
+   $daniia->where("id",4);
 })->first();
 
 $daniia->table("personas")->where(function (Daniia $daniia) {
-	$daniia->where("id","1")->orWhere(function (Daniia $daniia) {
-		$daniia->where("id","2")->andWhere(function (Daniia $daniia) {
-			$daniia->where("id","3");
-		});
-	});
+   $daniia->where("id","1")->orWhere(function (Daniia $daniia) {
+      $daniia->where("id","2")->andWhere(function (Daniia $daniia) {
+         $daniia->where("id","3");
+      });
+   });
 })->first();
 
 $daniia->table("personas")->where("personas.id",function($query) {
-	$query->table("personas")->select("id")->where("id",4)->limit(1);
+   $query->table("personas")->select("id")->where("id",4)->limit(1);
 })->first();
 
 $daniia->table("personas")->where("personas.id","=",function($query) {
-	$query->table("personas")->select("id")->where("id",4)->limit(1);
+   $query->table("personas")->select("id")->where("id",4)->limit(1);
 })->first();
 
 $daniia->table("personas")->where("id",'in',function(Daniia $daniia){
-	$daniia->table('personas')->select('id');
+   $daniia->table('personas')->select('id');
 })->first();
 
 
@@ -338,24 +397,12 @@ $daniia->table("personas")->where(['nombre'=>[4,5,6,7]])->first();
 
 $daniia->table("personas")->where(['nombre in'=>[4,5,6,7]])->first();
 
-$daniia
-->table("personas")
-->where(["personas.id"=>function($query) {
-   $query
-      ->table("personas")
-      ->select()
-      ->where("id",4)
-      ->limit(1);
+$daniia->table("personas")->where(["personas.id"=>function(Daniia $daniia) {
+   $daniia->table("personas")->select()->where("id",4)->limit(1);
 }])->first();
 
-$daniia
-->table("personas")
-->where(["personas.id !="=>function($query) {
-   $query
-      ->table("personas")
-      ->select()
-      ->where("id",4)
-      ->limit(1);
+$daniia->table("personas")->where(["personas.id !="=>function(Daniia $daniia) {
+   $daniia->table("personas")->select()->where("id",4)->limit(1);
 }])->first();
 ```
 
@@ -374,54 +421,54 @@ $daniia->table("personas")->having("id",[4,5,6,7])->first();
 $daniia->table("personas")->having("id",'in',[4,5,6,7])->first();
 
 $daniia->table("personas")->having(function (Daniia $daniia) {
-	$daniia->having("id",4)->andHaving("apellido","LIKE","%garcia%");
+   $daniia->having("id",4)->andHaving("apellido","LIKE","%garcia%");
 })->first();
 
 $daniia->table("personas")->having(function (Daniia $daniia) {
-	$daniia->having("id",4);
+   $daniia->having("id",4);
 })->orHaving(function (Daniia $daniia){
-	$daniia->having("id",4);
+   $daniia->having("id",4);
 })->first();
 
 $daniia->table("personas")->having(function (Daniia $daniia) {
-	$daniia->having("id","1")->orHaving(function (Daniia $daniia) {
-		$daniia->having("id","2")->andHaving(function (Daniia $daniia) {
-			$daniia->having("id","3");
-		});
-	});
+   $daniia->having("id","1")->orHaving(function (Daniia $daniia) {
+      $daniia->having("id","2")->andHaving(function (Daniia $daniia) {
+         $daniia->having("id","3");
+      });
+   });
 })->first();
 
-$daniia->table("personas")->having("personas.id",function($query) {
-	$query->table("personas")->select("id")->having("id",4)->limit(1);
+$daniia->table("personas")->having("personas.id",function(Daniia $daniia) {
+   $daniia->table("personas")->select("id")->having("id",4)->limit(1);
 })->first();
 
-$daniia->table("personas")->having("personas.id","=",function($query) {
-	$query->table("personas")->select("id")->having("id",4)->limit(1);
+$daniia->table("personas")->having("personas.id","=",function(Daniia $daniia) {
+   $daniia->table("personas")->select("id")->having("id",4)->limit(1);
 })->first();
 
 $daniia->table("personas")->having("id",'in',function(Daniia $daniia){
-	$daniia->table('personas')->select('id');
+   $daniia->table('personas')->select('id');
 })->first();
 ```
 
 ### Union
 ```php
 $daniia->table("personas")->where('id',1)->union(function (Daniia $daniia) {
-	$daniia->table("personas")->where('id',1);
+   $daniia->table("personas")->where('id',1);
 })->get();
 
 $daniia->table("personas")->select('id')->union(function (Daniia $daniia) {
-	$daniia->table("oficina")->select('id_personas AS id');
+   $daniia->table("oficina")->select('id_personas AS id');
 })->get();
 
 $daniia->table("personas")->select('id')->where('id',1)->union(function (Daniia $daniia) {
-	$daniia->table("oficina")->select('id_personas AS id')->where('id_personas',4);
+   $daniia->table("oficina")->select('id_personas AS id')->where('id_personas',4);
 })->get();
 
 $daniia->table("personas")->where('id',1)->union(function (Daniia $daniia) {
-	$daniia->table("personas")->where('id',1);
+   $daniia->table("personas")->where('id',1);
 })->union(function (Daniia $daniia) {
-	$daniia->table("personas")->where('id',1);
+   $daniia->table("personas")->where('id',1);
 })->limit(1)->get();
 ```
 
@@ -433,7 +480,7 @@ $daniia->table("personas")->orderBy(["ci"])->get();
 $daniia->table("personas")->orderBy("apellido","nombre")->get();
 $daniia->table("personas")->orderBy(["apellido","nombre"])->get();
 
-// al fina se indica el tipo de orden 
+// al final se indica el tipo de orden 
 $daniia->table("personas")->orderBy("apellido","nombre",'asc')->get();
 $daniia->table("personas")->orderBy(["apellido","nombre",'desc'])->get();
 ```
@@ -455,15 +502,21 @@ $daniia->table("personas")->limit(["1"])->get();
 $daniia->table("personas")->limit("1","0")->get();
 $daniia->table("personas")->limit(["1","0"])->get();
 ```
+
+### Offset
+```php
+$daniia->table("personas")->limit("1")->offset("0")->get();
+```
+
 ### Otros
 ```php
 // Obtiene la última ID insertada en la base de datos
 $daniia->lastId();
 
-// Obtiene la última Query ejecutado
+// Obtiene el última Query ejecutado
 $daniia->lastQuery();
 
-// Obtiene la última los datos consultados
+// Obtiene los últimos datos consultados
 $daniia->getData();
 ```
 
@@ -472,64 +525,65 @@ $daniia->getData();
 ## API
 ```php
 Daniia {
-	// Obtener datos resultante despues de la ejecución 
-	public integer lastId( void );
-	public mixed lastQuery( void );
-	public mixed getData( void );
-	public array error( void );
+   // Obtener datos resultante despues de la ejecución 
+   public integer lastId( void );
+   public mixed lastQuery( void );
+   public mixed getData( void );
+   public array error( void );
 
-	// Escapa cadenas de caracteres
-	public string quote( void );
+   // Escape de cadenas de caracteres
+   public string quote( void );
 
-	// Sentencia para transación
-	public Daniia begin( void );
-	public Daniia commit( void );
-	public Daniia rollback( void );
+   // Sentencia para transación
+   public Daniia begin( void );
+   public Daniia commit( void );
+   public Daniia rollback( void );
 
-	// ejecuta sentencias SQL
-	public PDOStatement query( string $sql );
+   // ejecutar sentencias SQL
+   public PDOStatement query( string $sql );
 
-	// Obtiene los campos de la tabla especificada
-	public array columns( string $table = null );
+   // Obtiener los campos de la tabla especificada
+   public array columns( string $table = null );
 
-	// ejecuta Query Builder
-	public array get( void );
-	public array getArray( void );
-	public array all( void );
-	public array allArray( void );
-	public object first( void );
-	public array firstArray( void );
-	public array lists( string $column [, string $index = null ] );
-	public bool save( void );
-	public Daniia find( string $ids [, ...] | array $ids );
+   // ejecutar Query Builder
+   public array get( Closure $closure );
+   public array getArray( Closure $closure );
+   public array all( Closure $closure );
+   public array allArray( Closure $closure );
+   public object first( Closure $closure );
+   public array firstArray( Closure $closure );
+   public array lists( string $column [, string $index = null | Closure $closure ] [, Closure $closure] );
+   public bool save( void );
+   public Daniia find( [string $ids [, ...] | array $ids] [, Closure $closure] );
 
-	public bool truncate( void );
-	public int insertGetId( array $datas );
-	public bool insert( array $datas [, $returning_id = false]  ); // $returning_id solo para PostgresSql
-	public bool update( array $datas );
-	public bool delete( string $ids [, ...] | array $ids = [] );
-	
-	// Query Builder
-	public Daniia primaryKey( string $primaryKey );
-	public Daniia table( string $table [, ...] | array $table );
-	public Daniia select( string $select [, ...] | array $select );
-	public Daniia from( string $table [, ...] | array $table | Closure $table [, string $aliasFrom = ""] );
-	public Daniia join( string $table, string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
-	public Daniia innerJoin( string $table, string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
-	public Daniia leftJoin( string $table, string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
-	public Daniia rightJoin( string $table, string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
-	public Daniia on( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
-	public Daniia orOn( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
-	public Daniia andOn( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
-	public Daniia where( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
-	public Daniia orWhere( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
-	public Daniia andWhere( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
-	public Daniia union( Closure $closure );
-	public Daniia having( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
-	public Daniia orHaving( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
-	public Daniia andHaving( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
-	public Daniia groupBy( string $fields | array $fields );
-	public Daniia orderBy( string $fields | array $fields );
-	public Daniia limit( int $limit [, int $offset = null ] | array $limit );
+   public bool truncate( void );
+   public int insertGetId( array $datas );
+   public bool insert( array $datas [, $returning_id = false]  ); // $returning_id solo para PostgresSql
+   public bool update( array $datas );
+   public bool delete( string $ids [, ...] | array $ids = [] );
+   
+   // Query Builder
+   public Daniia primaryKey( string $primaryKey );
+   public Daniia table( string $table [, ...] | array $table );
+   public Daniia select( string $select [, ...] | array $select );
+   public Daniia from( string $table [, ...] | array $table | Closure $table [, string $aliasFrom = ""] );
+   public Daniia join( string $table, string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
+   public Daniia innerJoin( string $table, string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
+   public Daniia leftJoin( string $table, string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
+   public Daniia rightJoin( string $table, string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
+   public Daniia on( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
+   public Daniia orOn( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
+   public Daniia andOn( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
+   public Daniia where( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
+   public Daniia orWhere( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
+   public Daniia andWhere( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
+   public Daniia union( Closure $closure );
+   public Daniia having( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
+   public Daniia orHaving( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
+   public Daniia andHaving( string $column | Closure $column [, string $operator = null | Closure $operator [, string $value = null | Closure $value | bool $value [, bool $scape_quote = false ]]] );
+   public Daniia groupBy( string $fields | array $fields );
+   public Daniia orderBy( string $fields | array $fields );
+   public Daniia limit( int $limit [, int $offset = null ] | array $limit );
+   public Daniia offset( int $offset);
 }
 ```

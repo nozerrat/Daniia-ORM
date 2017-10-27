@@ -6,7 +6,7 @@
  * @copyright   2015 Carlos Garcia
  * @link
  * @license
- * @version     0.1
+ * @version     1.0
  * @package     Daniia
  *
  */

@@ -24,22 +24,22 @@
  */
 
 
-// foreach ([
-//           "USER" =>"root",
-//           "PASS" =>"",
-//           "SCHEMA" =>"daniia",
-//           "DSN" =>"mysql:port=3306;host=localhost;dbname=daniia",
-//        ] as $key => $value
-// ) { define(strtoupper($key),$value); }
-
 foreach ([
-   "USER" =>"postgres",
-   "PASS" =>"123",
+   "USER" =>"root",
+   "PASS" =>"",
    "SCHEMA" =>"daniia",
-   "DSN" =>"pgsql:port=5432;host=localhost;dbname=daniia",
-   ]
-as $key => $value
-) { define(strtoupper($key),$value); }
+   "DSN" =>"mysql:port=3306;host=localhost;dbname=daniia",
+] as $key => $value)
+{ define(strtoupper($key),$value); }
+
+// foreach ([
+//    "USER" =>"postgres",
+//    "PASS" =>"123",
+//    "SCHEMA" =>"daniia",
+//    "DSN" =>"pgsql:port=5432;host=localhost;dbname=daniia",
+//    ]
+// as $key => $value
+// ) { define(strtoupper($key),$value); }
 
 require("Daniia/Daniia.php");
 require("Daniia/BaseDaniia.php");
@@ -773,7 +773,7 @@ $personas = new Personas;
 
 ###################################################################################
 ###################################################################################
-##########################     GET, GETARRAY, LIST     ############################
+##############################     GET, GETARRAY     ##############################
 ###################################################################################
 ###################################################################################
 // $daniia
@@ -790,6 +790,30 @@ $personas = new Personas;
 
 // $daniia
 //    ->table('personas')
+//    ->get(function($data, Daniia $daniia) {
+//       return $data;
+//    });
+// var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+// echo "<hr>";
+
+// $daniia
+//    ->table('personas')
+//    ->getArray(function($data, Daniia $daniia) {
+//       return $data;
+//    });
+// var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+// echo "<hr>";
+
+
+
+
+###################################################################################
+###################################################################################
+#################################      LISTS     ##################################
+###################################################################################
+###################################################################################
+// $daniia
+//    ->table('personas')
 //    ->lists('nombre');
 // var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
 // echo "<hr>";
@@ -799,6 +823,23 @@ $personas = new Personas;
 //    ->lists('nombre','id');
 // var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
 // echo "<hr>";
+
+// $daniia
+//    ->table('personas')
+//    ->lists('nombre',function($data, Daniia $daniia) {
+//       return $data;
+//    });
+// var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+// echo "<hr>";
+
+// $daniia
+//    ->table('personas')
+//    ->lists('nombre','id',function($data, Daniia $daniia) {
+//       return $data;
+//    });
+// var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+// echo "<hr>";
+
 
 
 
@@ -845,6 +886,32 @@ $personas = new Personas;
 // var_dump($daniia->apellido);
 // echo "<hr>";
 
+// $daniia
+//    ->primaryKey('id')
+//    ->table('personas')
+//    ->find(2,function($data, Daniia $daniia) {
+//       return $data;
+//    });
+// var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+// echo "<hr>";
+
+// $daniia
+//    ->primaryKey('id')
+//    ->table('personas')
+//    ->find(1,2,function($data, Daniia $daniia) {
+//       return $data;
+//    });
+// var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+// echo "<hr>";
+
+// $daniia
+//    ->primaryKey('id')
+//    ->table('personas')
+//    ->find(['id'=>2,'apellido'=>'Garcia'],function($data, Daniia $daniia) {
+//       return $data;
+//    }); // Ignora la primaryKey
+// var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+// echo "<hr>";
 
 
 ###################################################################################
@@ -890,6 +957,33 @@ $personas = new Personas;
 //    ->primaryKey('id')
 //    ->find([1,2])
 //    ->firstArray();
+// var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+// echo "<hr>";
+
+// $daniia
+//    ->table('personas')
+//    ->first(function($data, Daniia $daniia) {
+//       return $data;
+//    });
+// var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+// echo "<hr>";
+
+// $daniia
+//    ->table('personas')
+//    ->firstArray(function($data, Daniia $daniia) {
+//       return $data;
+//    });
+// var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+// echo "<hr>";
+
+// $daniia
+//    ->table('personas')
+//    ->primaryKey('id')
+//    ->find([1,2],function($data, Daniia $daniia) {
+//       return $data;
+//    })->first(function($data, Daniia $daniia) {
+//       return $data;
+//    });
 // var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
 // echo "<hr>";
 
@@ -1009,14 +1103,14 @@ $personas = new Personas;
 ###################################################################################
 // $daniia
 //    ->table("personas")
-//    ->limit("1","0")
+//    ->limit("1")
 //    ->get();
 // var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
 // echo "<hr>";
 
 // $daniia
 //    ->table("personas")
-//    ->limit("1")
+//    ->limit("1","0")
 //    ->get();
 // var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
 // echo "<hr>";
@@ -1031,6 +1125,20 @@ $personas = new Personas;
 // $daniia
 //    ->table("personas")
 //    ->limit(["1"])
+//    ->get();
+// var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+// echo "<hr>";
+
+
+###################################################################################
+###################################################################################
+##########################            OFFSET            ###########################
+###################################################################################
+###################################################################################
+// $daniia
+//    ->table("personas")
+//    ->limit("1")
+//    ->offset("0")
 //    ->get();
 // var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
 // echo "<hr>";
