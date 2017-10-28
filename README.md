@@ -10,7 +10,7 @@ Para instalar con [Composer](https://getcomposer.org/), simplemente requiere la
 última versión de este paquete.
 
 ```bash
-composer require nozerrat/daniia
+composer require nozerrat/daniia dev-master
 ```
 
 ## Requerimientos
