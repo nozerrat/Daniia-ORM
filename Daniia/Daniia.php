@@ -500,8 +500,11 @@ class Daniia
     * @return Array
     */
    public function getArray($closure=NULL) {
-      $this->get($closure);
+      $this->get();
       $this->data = array_map(function($v){return(array)$v;},$this->data);
+      if ($closure instanceof \Closure) {
+         $this->data = $closure( $this->data, $this );
+      }
       return $this->data ?: [];
    }
 
@@ -537,7 +540,7 @@ class Daniia
     */
    public function first($closure=NULL) {
       if(!$this->firstData) {
-         $this->get($closure);
+         $this->get();
       }
 
       if(is_array($this->data) && count($this->data) >= 1) {
@@ -578,7 +581,9 @@ class Daniia
          $closure = $index;
          $index = null;
       }
-      $this->get($closure);
+
+      $this->get();
+      
       if (count($this->data)) {
          $temp_datas = $this->data;
          $this->data = [];
@@ -590,6 +595,10 @@ class Daniia
             foreach ($temp_datas as $key => $object) {
                $this->data[$object->{$index}] = $object->{$column};
             }
+         }
+
+         if ($closure instanceof \Closure) {
+            $this->data = $closure( $this->data, $this );
          }
 
          return $this->data;
@@ -634,10 +643,14 @@ class Daniia
             $this->where( $this->primaryKey, 'in', $ids );
          }
 
-         $this->get( $closure );
+         $this->get();
 
          if (count($ids)===1 && count($this->data)===1) {
             $this->data = $this->data[0];
+         }
+
+         if ($closure instanceof \Closure) {
+            $this->data = $closure( $this->data, $this );
          }
 
          return $this;
