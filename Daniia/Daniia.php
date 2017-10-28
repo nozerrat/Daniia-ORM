@@ -1639,15 +1639,15 @@ class Daniia
 
 
    public function lastId() {
-      return (integer) $this->last_id;
+      return (integer) $this->last_id ?: -1;
    }
 
    public function lastQuery() {
-      return $this->last_sql;
+      return $this->last_sql ?: '';
    }
 
    public function getData() {
-      return $this->data;
+      return $this->data ?: [];
    }
 
 
