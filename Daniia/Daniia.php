@@ -502,7 +502,7 @@ class Daniia
    public function getArray($closure=NULL) {
       $this->get($closure);
       $this->data = array_map(function($v){return(array)$v;},$this->data);
-      return $this->data;
+      return $this->data ?: [];
    }
 
    /**
