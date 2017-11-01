@@ -540,7 +540,8 @@ Daniia {
    public Daniia rollback( void );
 
    // ejecutar sentencias SQL
-   public PDOStatement query( string $sql );
+   public object query( string $sql, [Closure $closure] );
+   public array queryArray( string $sql, [Closure $closure] );
 
    // Obtiener los campos de la tabla especificada
    public array columns( string $table = null );
