@@ -24,22 +24,22 @@
  */
 
 
-foreach ([
-   "USER" =>"root",
-   "PASS" =>"",
-   "SCHEMA" =>"daniia",
-   "DSN" =>"mysql:port=3306;host=localhost;dbname=daniia",
-] as $key => $value)
-{ define(strtoupper($key),$value); }
-
 // foreach ([
-//    "USER" =>"postgres",
-//    "PASS" =>"123",
+//    "USER" =>"root",
+//    "PASS" =>"",
 //    "SCHEMA" =>"daniia",
-//    "DSN" =>"pgsql:port=5432;host=localhost;dbname=daniia",
-//    ]
-// as $key => $value
-// ) { define(strtoupper($key),$value); }
+//    "DSN" =>"mysql:port=3306;host=localhost;dbname=daniia",
+// ] as $key => $value)
+// { define(strtoupper($key),$value); }
+
+foreach ([
+   "USER" =>"postgres",
+   "PASS" =>"123",
+   "SCHEMA" =>"daniia",
+   "DSN" =>"pgsql:port=5432;host=localhost;dbname=daniia",
+   ]
+as $key => $value
+) { define(strtoupper($key),$value); }
 
 require("Daniia/Daniia.php");
 require("Daniia/BaseDaniia.php");
@@ -296,6 +296,34 @@ $personas = new Personas;
 //    ->delete(); // Ignora el primaryKey
 // var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
 // echo "<hr>";
+
+
+
+###################################################################################
+###################################################################################
+#############################         QUERY          ##############################
+###################################################################################
+###################################################################################
+$daniia->query('SELECT * FROM daniia.personas LIMIT 1');
+var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+echo "<hr>";
+
+$daniia->queryArray('SELECT * FROM daniia.personas LIMIT 1');
+var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+echo "<hr>";
+
+$daniia->query('SELECT * FROM daniia.personas LIMIT 1', function( $data, Daniia $daniia ) {
+   return $data[0];
+});
+var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+echo "<hr>";
+
+$daniia->queryArray('SELECT * FROM daniia.personas LIMIT 1', function( $data, Daniia $daniia ) {
+   return $data[0];
+});
+var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+echo "<hr>";
+
 
 
 

@@ -451,8 +451,31 @@ class Daniia
     * @param String $sql
     * @return Array
     */
-   public function query( string $sql ) {
-      return $this->id_conn->query($sql,constant('\PDO::FETCH_'.strtoupper($this->type_fetch)));
+   public function query( string $sql, $closure=NULL ) {
+      $this->connection();
+      $this->last_sql = $this->sql = $sql;
+      $this->fetch();
+      $this->data = $this->rows;
+      $this->reset();
+      if ($closure instanceof \Closure) {
+         $this->data = $closure( $this->data, $this );
+      }
+      return $this->data;
+   }
+
+   /**
+    * Ejecuta una sentencia SQL, devolviendo un conjunto de resultados como un Array
+    * @author Carlos Garcia
+    * @param Closure $closure
+    * @return Array
+    */
+    public function queryArray( string $sql, $closure=NULL ) {
+      $this->query( $sql );
+      $this->data = array_map(function($v){return(array)$v;},$this->data);
+      if ($closure instanceof \Closure) {
+         $this->data = $closure( $this->data, $this );
+      }
+      return $this->data ?: [];
    }
 
 
@@ -1639,15 +1662,15 @@ class Daniia
 
 
    public function lastId() {
-      return (integer) $this->last_id ?: -1;
+      return (integer) $this->last_id;
    }
 
    public function lastQuery() {
-      return $this->last_sql ?: '';
+      return $this->last_sql;
    }
 
    public function getData() {
-      return $this->data ?: [];
+      return $this->data;
    }
 
 
