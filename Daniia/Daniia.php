@@ -635,7 +635,7 @@ class Daniia
     * @param Array $ids
     * @return Array|Object
     */
-   public function find($ids) {
+    public function find($ids=[]) {
       if (func_num_args()>0) {
          if (func_num_args()===1) {
             if (!is_array($ids)) {
@@ -645,41 +645,40 @@ class Daniia
          else {
             $ids = func_get_args();
          }
-         
-         $closure = NULL;
-         if ( count(func_get_args())>1 ) {
-            if ( $ids[count($ids)-1] instanceof \Closure ) {
-               $closure = array_pop($ids);
-            }
-            if (is_array($ids[0])) {
-               $ids = $ids[0];
-            }
+      }
+
+      $closure = NULL;
+      if ( count(func_get_args())>1 ) {
+         if ( $ids[count($ids)-1] instanceof \Closure ) {
+            $closure = array_pop($ids);
          }
+         if (is_array($ids[0])) {
+            $ids = $ids[0];
+         }
+      }
 
+      $this->firstData = $this->saveData = $this->deleteData = TRUE;
 
-         $this->firstData = $this->saveData = $this->deleteData = TRUE;
-
+      if ( count($ids) && !($ids[0] instanceof \Closure) ) {
          if ( $this->is_assoc( $ids ) ) {
             $this->where( $ids );
          }
          else {
             $this->where( $this->primaryKey, 'in', $ids );
          }
-
-         $this->get();
-
-         if (count($ids)===1 && count($this->data)===1) {
-            $this->data = $this->data[0];
-         }
-
-         if ($closure instanceof \Closure) {
-            $this->data = $closure( $this->data, $this );
-         }
-
-         return $this;
       }
 
-      return null;
+      $this->get();
+
+      if (count($ids)===1 && count($this->data)===1) {
+         $this->data = $this->data[0];
+      }
+
+      if ($closure instanceof \Closure) {
+         $this->data = $closure( $this->data, $this );
+      }
+
+      return $this;
    }
 
    /**
@@ -687,18 +686,34 @@ class Daniia
     * @author Carlos Garcia
     * @return boolean
     */
-   public function save() {
+    public function save($closure=NULL) {
       $updated = FALSE;
       if ($this->saveData && @$this->data->{$this->primaryKey}) {
-         $this->update((array)$this->data);
-         $updated = TRUE;
+         $updated = $this->update((array)$this->data);
       }
 
+      $last_id = NULL;
       if (($this->saveData && !@$this->data->{$this->primaryKey}) || !$updated) {
-         $this->insert((array)$this->data);
+         $last_id = $this->insertGetId((array)$this->data);
       }
 
       $this->saveData = FALSE;
+      $lastQuery = $this->lastQuery();
+
+      $error = $this->error();
+      if ( $error['message'] ) {
+         return FALSE;
+      }
+
+      if ( $last_id ) {
+         $this->where( $this->primaryKey, $last_id );
+         $this->get();
+         $this->last_sql = $lastQuery ."\n". $this->lastQuery();
+      }
+
+      if ($closure instanceof \Closure) {
+         $this->data = $closure( $this->data, $this );
+      }
 
       $error = $this->error();
       return $error['message'] ? FALSE : TRUE;

@@ -61,8 +61,18 @@ class Personas extends BaseDaniia {
 $personas = new Personas();
 $personas->get();// consultamos todos los datos
 ```
+
+También se puede cambiar la primaryKey desde una instancia Daniia:
+```php
+
+$daniia->primaryKey("id");
+
+```
+
 ## Uso y Ejemplos
 Para usar Daniia ORM es muy falcil, aquí aplicaremos algunos ejemplos del uso del Frameword:
+
+
 
 ### Insert
 ```php
@@ -97,8 +107,8 @@ $daniia->table("personas")->primaryKey("id")->update([
 ```php
 $daniia->table("personas")->where("id",2)->delete();
 
-$daniia->primaryKey('id')->table("personas")->delete(3);
-$daniia->primaryKey('id')->table("personas")->delete([3]);
+$daniia->table("personas")->delete(3);
+$daniia->table("personas")->delete([3]);
 
 $daniia->primaryKey('id')->table("personas")->delete(6,7);
 $daniia->primaryKey('id')->table("personas")->delete([6,7]);
@@ -266,24 +276,28 @@ $daniia->table('personas')->lists('nombre','id',function( $data, Daniia $daniia 
 
 ###  Find
 ```php
-$daniia->primaryKey('id')->table('personas')->find(1);
-$daniia->primaryKey('id')->table('personas')->find([1]);
+$daniia->table('personas')->find(); // Consulta Todos
 
-$daniia->primaryKey('id')->table('personas')->find(1,2);
-$daniia->primaryKey('id')->table('personas')->find([1,2]);
+$daniia->table('personas')->where('id',1)->find();
 
-$daniia->primaryKey('id')->table('personas')->find(2);
+$daniia->table('personas')->find(1);
+$daniia->table('personas')->find([1]);
+
+$daniia->table('personas')->find(1,2);
+$daniia->table('personas')->find([1,2]);
+
+$daniia->table('personas')->find(2);
 echo $daniia->id;
 echo $daniia->ci;
 echo $daniia->nombre;
 echo $daniia->apellido;
 
-$daniia->primaryKey('id')->table('personas')->find(2,function($data, Daniia $daniia) {
+$daniia->table('personas')->find(1,2,function($data, Daniia $daniia) {
    // realizar algún filtro
    return $data;
 });
 
-$daniia->primaryKey('id')->table('personas')->find([1,2],function($data, Daniia $daniia) {
+$daniia->table('personas')->find([1,2],function($data, Daniia $daniia) {
    // realizar algún filtro
    return $data;
 });
@@ -321,25 +335,42 @@ $daniia->table('personas')->primaryKey('id')->find([1,2],function($data, Daniia 
 
 ### Save
 ```php
-$daniia->primaryKey('id')->table('personas')->find(2);
+$daniia->table('personas')->find(2);
 $daniia->nombre = "yyyyyyyy";
 $daniia->save();//UPDATE
 
-$daniia->primaryKey('id')->table('personas')->find(1,2)->first();
+$daniia->table('personas')->find(1,2)->first();
 $daniia->nombre = "yyyyyyyy";
 $daniia->save();//UPDATE
 
-$daniia->primaryKey('id')->table('personas')->find('00')->first(); // registro no existe..
+// Cuendo la función find esta sin argumento es obligatorio
+// usar la función first para extraer los datos del Array
+// consultado
+$daniia->table('personas')->where('id',1)->find()->first();
+$daniia->nombre = "yyyyyyyy";
+$daniia->save();//UPDATE
+
+$daniia->table('personas')->find('00')->first(); // registro no existe..
 $daniia->ci       = "123456789";
 $daniia->nombre   = "Carlos";
 $daniia->apellido = "Garcia";
 $daniia->save();//INSERT
 
-$daniia->primaryKey('id')->table('personas');
+$daniia->table('personas');
 $daniia->ci       = "123456789";
 $daniia->nombre   = "Carlos";
 $daniia->apellido = "Garcia";
 $daniia->save();//INSERT
+
+$daniia->table('personas')->find()->first();
+$daniia->ci       = "123456789";
+$daniia->nombre   = "Carlos";
+$daniia->apellido = "Garcia";
+$daniia->save(function($data, Daniia $daniia) {
+   // Si la actualización es exitosa devuelve los datos actualizado
+   // sino, devuelve los datos insertado
+   return $data;
+});//UPDATE
 ```
 
 ### Where
@@ -540,28 +571,28 @@ Daniia {
    public Daniia rollback( void );
 
    // ejecutar sentencias SQL
-   public object query( string $sql, [Closure $closure] );
-   public array queryArray( string $sql, [Closure $closure] );
+   public object query( string $sql [, Closure $closure] );
+   public array queryArray( string $sql [, Closure $closure] );
 
    // Obtiener los campos de la tabla especificada
    public array columns( string $table = null );
 
    // ejecutar Query Builder
-   public array get( Closure $closure );
-   public array getArray( Closure $closure );
-   public array all( Closure $closure );
-   public array allArray( Closure $closure );
-   public object first( Closure $closure );
-   public array firstArray( Closure $closure );
+   public array get( [Closure $closure] );
+   public array getArray( [Closure $closure] );
+   public array all( [Closure $closure] );
+   public array allArray( [Closure $closure] );
+   public object first( [Closure $closure] );
+   public array firstArray( [Closure $closure] );
    public array lists( string $column [, string $index = null | Closure $closure ] [, Closure $closure] );
-   public bool save( void );
+   public bool save( [Closure $closure] );
    public Daniia find( [string $ids [, ...] | array $ids] [, Closure $closure] );
 
    public bool truncate( void );
    public int insertGetId( array $datas );
    public bool insert( array $datas [, $returning_id = false]  ); // $returning_id solo para PostgresSql
-   public bool update( array $datas );
-   public bool delete( string $ids [, ...] | array $ids = [] );
+   public bool update( [array $datas] );
+   public bool delete( [string $ids [, ...] | array $ids = []] );
    
    // Query Builder
    public Daniia primaryKey( string $primaryKey );

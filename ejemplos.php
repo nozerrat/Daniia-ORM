@@ -151,7 +151,7 @@ $personas = new Personas;
 
 // $daniia
 //    ->table("personas")
-//    ->where("id",1)
+//    ->where("ci",1)
 //    ->update(["ci"=>"1111111","nombre"=>"aaaa","apellido"=>"aaaa","otro"=>"otro"]);
 // var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
 // echo "<hr>";
@@ -304,25 +304,25 @@ $personas = new Personas;
 #############################         QUERY          ##############################
 ###################################################################################
 ###################################################################################
-$daniia->query('SELECT * FROM daniia.personas LIMIT 1');
-var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
-echo "<hr>";
+// $daniia->query('SELECT * FROM daniia.personas LIMIT 1');
+// var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+// echo "<hr>";
 
-$daniia->queryArray('SELECT * FROM daniia.personas LIMIT 1');
-var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
-echo "<hr>";
+// $daniia->queryArray('SELECT * FROM daniia.personas LIMIT 1');
+// var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+// echo "<hr>";
 
-$daniia->query('SELECT * FROM daniia.personas LIMIT 1', function( $data, Daniia $daniia ) {
-   return $data[0];
-});
-var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
-echo "<hr>";
+// $daniia->query('SELECT * FROM daniia.personas LIMIT 1', function( $data, Daniia $daniia ) {
+//    return @$data[0];
+// });
+// var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+// echo "<hr>";
 
-$daniia->queryArray('SELECT * FROM daniia.personas LIMIT 1', function( $data, Daniia $daniia ) {
-   return $data[0];
-});
-var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
-echo "<hr>";
+// $daniia->queryArray('SELECT * FROM daniia.personas LIMIT 1', function( $data, Daniia $daniia ) {
+//    return @$data[0];
+// });
+// var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+// echo "<hr>";
 
 
 
@@ -879,7 +879,22 @@ echo "<hr>";
 // $daniia
 //    ->primaryKey('id')
 //    ->table('personas')
-//    ->find(2);
+//    ->find(); // Consulta Todos
+// var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+// echo "<hr>";
+
+// $daniia
+//    ->primaryKey('id')
+//    ->table('personas')
+//    ->where('id',3)
+//    ->find();
+// var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+// echo "<hr>";
+
+// $daniia
+//    ->primaryKey('id')
+//    ->table('personas')
+//    ->find(3);
 // var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
 // echo "<hr>";
 
@@ -893,20 +908,20 @@ echo "<hr>";
 // $daniia
 //    ->primaryKey('id')
 //    ->table('personas')
-//    ->find(['id'=>2,'apellido'=>'Garcia']); // Ignora la primaryKey
+//    ->find(['id'=>3,'apellido'=>'Garcia']); // Ignora la primaryKey
 // var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
 // echo "<hr>";
 
 // $daniia
 //    ->table('personas')
-//    ->find(['id !='=>1,'nombre ILIKE'=> '%CARLOS%']);
+//    ->find(['id !='=>1,'nombre LIKE'=> '%CARLOS%']);
 // var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
 // echo "<hr>";
 
 // $daniia
 //    ->primaryKey('id')
 //    ->table('personas')
-//    ->find([2]);
+//    ->find([3]);
 // var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
 // var_dump($daniia->id);
 // var_dump($daniia->ci);
@@ -917,7 +932,7 @@ echo "<hr>";
 // $daniia
 //    ->primaryKey('id')
 //    ->table('personas')
-//    ->find(2,function($data, Daniia $daniia) {
+//    ->find(function($data, Daniia $daniia) {
 //       return $data;
 //    });
 // var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
@@ -926,7 +941,8 @@ echo "<hr>";
 // $daniia
 //    ->primaryKey('id')
 //    ->table('personas')
-//    ->find(1,2,function($data, Daniia $daniia) {
+//    ->where('id',3)
+//    ->find(function($data, Daniia $daniia) {
 //       return $data;
 //    });
 // var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
@@ -935,7 +951,25 @@ echo "<hr>";
 // $daniia
 //    ->primaryKey('id')
 //    ->table('personas')
-//    ->find(['id'=>2,'apellido'=>'Garcia'],function($data, Daniia $daniia) {
+//    ->find(3,function($data, Daniia $daniia) {
+//       return $data;
+//    });
+// var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+// echo "<hr>";
+
+// $daniia
+//    ->primaryKey('id')
+//    ->table('personas')
+//    ->find(1,3,function($data, Daniia $daniia) {
+//       return $data;
+//    });
+// var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+// echo "<hr>";
+
+// $daniia
+//    ->primaryKey('id')
+//    ->table('personas')
+//    ->find(['id'=>3,'apellido'=>'Garcia'],function($data, Daniia $daniia) {
 //       return $data;
 //    }); // Ignora la primaryKey
 // var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
@@ -976,7 +1010,7 @@ echo "<hr>";
 // $daniia
 //    ->table('personas')
 //    ->primaryKey('id')
-//    ->find([1,2])->first();
+//    ->find([1,3])->first();
 // var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
 // echo "<hr>";
 
@@ -1009,7 +1043,8 @@ echo "<hr>";
 //    ->primaryKey('id')
 //    ->find([1,2],function($data, Daniia $daniia) {
 //       return $data;
-//    })->first(function($data, Daniia $daniia) {
+//    })
+//    ->first(function($data, Daniia $daniia) {
 //       return $data;
 //    });
 // var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
@@ -1025,7 +1060,8 @@ echo "<hr>";
 // $daniia
 //    ->primaryKey('id')
 //    ->table('personas')
-//    ->find(2)
+//    ->find()
+//    ->first()
 //    ->nombre = "yyyyyyyy";
 // $daniia
 //    ->save();//UPDATE
@@ -1035,8 +1071,29 @@ echo "<hr>";
 // $daniia
 //    ->primaryKey('id')
 //    ->table('personas')
-//    ->find(2)
-//    ->first();
+//    ->where('id',1)
+//    ->find()
+//    ->first()
+//    ->nombre = "yyyyyyyy";
+// $daniia
+//    ->save();//UPDATE
+// var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+// echo "<hr>";
+
+// $daniia
+//    ->primaryKey('id')
+//    ->table('personas')
+//    ->find(1)
+//    ->nombre = "yyyyyyyy";
+// $daniia
+//    ->save();//UPDATE
+// var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+// echo "<hr>";
+
+// $daniia
+//    ->primaryKey('id')
+//    ->table('personas')
+//    ->find(1);
 // $daniia
 //    ->nombre = "XXXXXXX";
 // $daniia
@@ -1047,14 +1104,60 @@ echo "<hr>";
 // $daniia
 //    ->primaryKey('id')
 //    ->table('personas')
-//    ->find('00')
-//    ->first();// registro no existe..
+//    ->find(1);
+// $daniia
+//    ->nombre = "XXXXXXX";
+// $daniia
+//    ->save(function($data, Daniia $daniia) {
+//       // Si la actualización es exitosa devuelve los datos actualizado
+//       // sino, devuelve los datos insertado
+//       return $data;
+//    });//UPDATE
+// var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+// echo "<hr>";
+
+// $daniia
+//    ->primaryKey('id')
+//    ->table('personas')
+//    ->find('00');// registro no existe..
 // $daniia
 //    ->ci       = "6456789321";
 // $daniia
 //    ->nombre   = "Carlos";
 // $daniia
 //    ->apellido = "Garcia";
+// $daniia
+//    ->save();//INSERT
+// var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+// echo "<hr>";
+
+// $daniia
+//    ->primaryKey('id')
+//    ->table('personas')
+//    ->find('00');// registro no existe..
+// $daniia
+//    ->ci       = "6456789321";
+// $daniia
+//    ->nombre   = "Carlos";
+// $daniia
+//    ->apellido = "Garcia";
+// $daniia
+//    ->save(function($data, Daniia $daniia) {
+//       return $data;
+//    });//UPDATE
+// var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+// echo "<hr>";
+
+// $daniia
+//    ->table('personas');
+// $daniia
+//    ->ci       = "8795646";
+// $daniia
+//    ->nombre   = "Carlos";
+// $daniia
+//    ->apellido = "Garcia";
+// $daniia
+//    ->otros = "otros";
 // $daniia
 //    ->save();//INSERT
 // var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
@@ -1069,7 +1172,9 @@ echo "<hr>";
 // $daniia
 //    ->apellido = "Garcia";
 // $daniia
-//    ->save();//INSERT
+//    ->save(function($data, Daniia $daniia) {
+//       return $data;
+//    });//UPDATE
 // var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
 // echo "<hr>";
 
