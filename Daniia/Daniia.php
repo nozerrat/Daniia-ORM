@@ -1206,7 +1206,7 @@ class Daniia
       $this->connection();
 
 
-      if (is_array($column)) {
+      if ( is_array($column) ) {
          foreach ($column as $key => $val) {
             // $this->operators
             if (preg_match('/([\.a-zA-Z0-9_-]+) *(.*)/i', $key,$match)) {
@@ -1231,11 +1231,13 @@ class Daniia
       }
 
       // si no es un operador valido
-      if ($operator instanceof \Closure) {
+      if ( $operator instanceof \Closure ) {
          list($operator, $value, $scape_quote) = ['=', $operator, $value];
-      }elseif (is_array($operator)) {
+      }
+      elseif ( is_array($operator) ) {
          list($operator, $value, $scape_quote) = ['in', $operator, $value];
-      }elseif ($operator!==null&&!in_array(strtolower(trim($operator)), $this->operators, true)) {
+      }
+      elseif ( !in_array(strtolower(trim($operator)), $this->operators, true) ) {
          list($operator, $value, $scape_quote) = ['=', $operator, $value];
       }
 
@@ -1253,13 +1255,29 @@ class Daniia
          $value = ' '.$this->id_conn->quote($value[0]).' AND '.$this->id_conn->quote($value[1]).' ';
       }
 
-      if(is_array($value)) {
+      if( is_array($value) ) {
          $in = [];
          foreach($value as $val){
-            $in[] = ($scape_quote===true?$this->id_conn->quote($val):$val);
+            if ( $val===NULL ) {
+               $in[] = ' NULL ' ;
+            }
+            elseif ( gettype($val)==='boolean' ) {
+               $in[] = $val ? ' TRUE ' : ' FALSE ' ;
+            }
+            else {
+               $in[] = $this->id_conn->quote($val);
+            }
          }
-         $scape_quote = false;
+         $scape_quote = FALSE;
          $value = ' ('.implode(',',$in).') ';
+      }
+      elseif ( $value===NULL ) {
+         $scape_quote = FALSE;
+         $value = ' NULL ' ;
+      }
+      elseif ( gettype($value)==='boolean' ) {
+         $scape_quote = FALSE;
+         $value = $value ? ' TRUE ' : ' FALSE ' ;
       }
 
       // if (is_null($value)) {
@@ -1312,6 +1330,21 @@ class Daniia
       $this->connection();
       $schema = $this->schema?"{$this->schema}.":'';
 
+      if (is_array($column)) {
+         foreach ($column as $key => $val) {
+            // $this->operators
+            if (preg_match('/([\.a-zA-Z0-9_-]+) *(.*)/i', $key,$match)) {
+               if (trim($match[2])) {
+                  $this-> clauseJoin($table,trim($match[1]), trim($match[2]), $val, $scape_quote, $type);
+               }
+               else {
+                  $this-> clauseJoin($table,trim($match[1]), $val, $value, $scape_quote, $type);
+               }
+            }
+         }
+         return;
+      }
+
       // si es un closure lo ejecutamos
       if ($column instanceof \Closure) {
          // el resultado resuelto es almacenado en la variable $_ENV para luego terminar de agruparlo
@@ -1322,11 +1355,11 @@ class Daniia
       }
 
       // si no es un operador valido
-      if ($operator instanceof \Closure) {
+      if ( $operator instanceof \Closure ) {
          list($operator, $value, $scape_quote) = ['=', $operator, $value];
-      }elseif (is_array($operator)) {
+      }elseif ( is_array($operator) ) {
          list($operator, $value, $scape_quote) = ['in', $operator, $value];
-      }elseif ($operator!==null&&!in_array(strtolower(trim($operator)), $this->operators, true)) {
+      }elseif ( !in_array(strtolower(trim($operator)), $this->operators, true) ) {
          list($operator, $value, $scape_quote) = ['=', $operator, $value];
       }
 
@@ -1338,13 +1371,29 @@ class Daniia
          $value = $get_sql;
       }
 
-      if(is_array($value)) {
+      if( is_array($value) ) {
          $in = [];
          foreach($value as $val){
-            $in[] = ($scape_quote===true?$this->id_conn->quote($val):$val);
+            if ( $val===NULL ) {
+               $in[] = ' NULL ' ;
+            }
+            elseif ( gettype($val)==='boolean' ) {
+               $in[] = $val ? ' TRUE ' : ' FALSE ' ;
+            }
+            else {
+               $in[] = $this->id_conn->quote($val);
+            }
          }
-         $scape_quote = false;
+         $scape_quote = FALSE;
          $value = ' ('.implode(',',$in).') ';
+      }
+      elseif ( $value===NULL ) {
+         $scape_quote = FALSE;
+         $value = ' NULL ' ;
+      }
+      elseif ( gettype($value)==='boolean' ) {
+         $scape_quote = FALSE;
+         $value = $value ? ' TRUE ' : ' FALSE ' ;
       }
 
       if (!$closure) {
