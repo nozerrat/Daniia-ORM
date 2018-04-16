@@ -93,7 +93,7 @@ $daniia->table("personas")->insert([
 $daniia->table("personas")->primaryKey("id")->update(["id"=>1,"ci"=>"1111","nombre"=>"aa","apellido"=>"aa"]);
 
 // o en caso de que la ID no este esablecida en los datos
-$daniia->table("personas")->where("id",1)->update(["ci"=>"1111","nombre"=>"aa","apellido"=>"aa"]);
+$daniia->table("personas")->where("id",1)->update(["ci"=>"1111","nombre"=>"aa","apellido"=>"aa"], true/*Ignorar primaryKey*/);
 
 // Update multiples
 $daniia->table("personas")->primaryKey("id")->update([

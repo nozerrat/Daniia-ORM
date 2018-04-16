@@ -57,7 +57,7 @@ class Daniia
     * Contiene en nombre de la clave primaria de la tabla
     * @var String
     */
-   protected $primaryKey = "id";
+   protected $primaryKey = "_id";
 
    /**
     * Contiene los SELECT de las sentencia SQL
@@ -1029,10 +1029,11 @@ class Daniia
    /**
     * actualiza los datos en la base de datos
     * @author Carlos Garcia
-    * @param $datas Array
-    * @return boolean
+    * @param Array $datas
+    * @param Boolean $noApplyPrimaryKey
+    * @return Boolean
     */
-   public function update(array $datas) {
+   public function update(array $datas, $noApplyPrimaryKey = false) {
       if (is_array($datas) && count($datas)) {
          if (!is_array(@$datas[0]))
             $datas = [$datas];
@@ -1051,7 +1052,7 @@ class Daniia
             $isID = NULL;
             foreach($this->columnsData as $column) {
                if(isset($data[$column])) {
-                  if($this->primaryKey==$column) {
+                  if($this->primaryKey==$column && $noApplyPrimaryKey===false) {
                      $isID = $data[$column];
                   } 
                   else {

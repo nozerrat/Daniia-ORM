@@ -145,7 +145,7 @@ $personas = new Personas;
 ###################################################################################
 // $daniia
 //    ->table("personas")
-//    ->update(["ci"=>"1111111","nombre"=>"aaaa","apellido"=>"aaaa","otro"=>"otro"]); // Se actualizaran todos los campos
+//    ->update(["ci"=>"1111111","nombre"=>"aaaa","apellido"=>"aaaa","otro"=>"otro"], true/*Ignorar primaryKey*/); // Se actualizaran todos los campos
 // var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
 // echo "<hr>";
 
