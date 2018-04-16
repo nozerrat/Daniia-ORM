@@ -775,7 +775,7 @@ $personas = new Personas;
 //          ->on( ["personas.id <>"=>"oficina.id_personas"] )
 
 //          ->orOn("personas.id",'<>',"oficina.id_personas")
-//          ->andOn("personas.id","1",true)
+//          ->andOn("personas.id","holas",true) //Escapamos el valor
 //          ->orOn("personas.id","<>","oficina.id_personas");
 //    })->first();
 // var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
@@ -1407,25 +1407,25 @@ $personas = new Personas;
 
 // $daniia
 //    ->table("personas")
-//    ->where("id",false)
-//    ->orWhere("id",true)
-//    ->orWhere("id",null)
+//    ->where("id",FALSE)
+//    ->orWhere("id",TRUE)
+//    ->orWhere("id",NULL)
 //    ->first();
 // var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
 // echo "<hr>";
 
 // $daniia
 //    ->table("personas")
-//    ->where("id",'=',false)
-//    ->orWhere("id",'=',true)
-//    ->orWhere("id",'=',null)
+//    ->where("id",'=',FALSE)
+//    ->orWhere("id",'=',TRUE)
+//    ->orWhere("id",'=',NULL)
 //    ->first();
 // var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
 // echo "<hr>";
 
 // $daniia
 //    ->table("personas")
-//    ->where("id",[true,false,null])
+//    ->where("id",[TRUE,FALSE,NULL])
 //    ->first();
 // var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
 // echo "<hr>";

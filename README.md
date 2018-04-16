@@ -214,12 +214,27 @@ $daniia->table('personas')->leftJoin("oficina","personas.id","oficina.id_persona
 
 $daniia->table('personas')->rightJoin("oficina","personas.id","oficina.id_personas")->first();
 
+$daniia->table('personas')->rightJoin("oficina",['personas.id'=>[4,5,6,7]])->first();
+
 $daniia->table("personas")->join('oficina',"personas.id",function(Daniia $query) {
    $query->select("personas.id")->from("personas")->where("personas.id","4")->limit(1);
 })->first();
 
+
 $daniia->table('personas')->join("oficina",function(Daniia $daniia) {
-   $daniia->on("personas.id",[1,2,3,4])->orOn("personas.id","<>","oficina.id_personas");
+   $daniia
+      ->on("personas.id",TRUE)
+      ->on("personas.id",FALSE)
+      ->on("personas.id",NULL)
+      ->on("personas.id",[TRUE,FALSE,NULL])
+      ->on("personas.id",[1,2,3,4])
+      ->on("personas.id","oficina.id_personas")
+
+      ->on( ["personas.id"=>"oficina.id_personas"] )
+      ->on( ["personas.id <>"=>"oficina.id_personas"] )
+
+      ->orOn("personas.id",'<>',"oficina.id_personas")
+      ->andOn("personas.id","holas",true) //Escapamos el valor
 })->first();
 
  $daniia->table('personas')->join("oficina alias_a",function(Daniia $daniia) {
@@ -391,6 +406,12 @@ $daniia->table("personas")->where(function (Daniia $daniia) {
    $daniia->where("id",4)->andWhere("apellido","LIKE","%garcia%");
 })->first();
 
+$daniia->table("personas")->where("id",FALSE)->orWhere("id",TRUE)->orWhere("id",NULL)->first();
+
+$daniia->table("personas")->where("id",'=',FALSE)->orWhere("id",'=',TRUE)->orWhere("id",'=',NULL)->first();
+
+$daniia->table("personas")->where("id",[TRUE,FALSE,NULL])->first();
+
 $daniia->table("personas")->where(function (Daniia $daniia) {
    $daniia->where("id",4);
 })->orWhere(function (Daniia $daniia){
@@ -454,6 +475,12 @@ $daniia->table("personas")->having("id",'in',[4,5,6,7])->first();
 $daniia->table("personas")->having(function (Daniia $daniia) {
    $daniia->having("id",4)->andHaving("apellido","LIKE","%garcia%");
 })->first();
+
+$daniia->table("personas")->groupBy( "id" )->having("id",false)->having("id",true)->having("id",null)->first();
+
+$daniia->table("personas")->groupBy( "id" )->having("id",'=',false)->having("id",'=',true)->having("id",'=',null)->first();
+
+$daniia->table("personas")->groupBy( "id" )->having("id",[true,false,null])->first();
 
 $daniia->table("personas")->having(function (Daniia $daniia) {
    $daniia->having("id",4);
