@@ -562,7 +562,7 @@ class Daniia
     * @return Object
     */
    public function first($closure=NULL) {
-      if(!$this->firstData) {
+      if(!$this->firstData && !count($this->data)) {
          $this->get();
       }
 
@@ -576,7 +576,11 @@ class Daniia
       }
 
       $this->firstData = FALSE;
-      return $this->data;
+      
+      $data = $this->data;
+      $this->data = [];
+      
+      return $data;
    }
 
    /**
