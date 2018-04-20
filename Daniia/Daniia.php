@@ -1739,6 +1739,26 @@ class Daniia
       return $this->data;
    }
 
+   public function getDataFirst() {
+      if ( is_array( $this->data ) ) {
+         if ( isset( $this->data[0] ) ) {
+            return $this->data[0] ;
+         }
+         elseif ($this->data) {
+            return $this->data;
+         }
+         else {
+            return [];
+         }
+      }
+      elseif( $this->data ) {
+         return $this->data;
+      }
+      else {
+         return new \stdClass();
+      }
+   }
+
 
 
 
