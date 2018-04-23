@@ -460,7 +460,7 @@ class Daniia
       if ($closure instanceof \Closure) {
          $this->data = $closure( $this->data, $this );
       }
-      return $this->data;
+      return $this->data ?: [];
    }
 
    /**
@@ -513,7 +513,7 @@ class Daniia
          $this->data = $closure( $this->data, $this );
       }
 
-      return $this->data;
+      return $this->data ?: [];
    }
 
    /**
@@ -577,7 +577,7 @@ class Daniia
 
       $this->firstData = FALSE;
 
-      return $this->data;
+      return $this->data ?: [];
    }
 
    /**
@@ -625,7 +625,7 @@ class Daniia
             $this->data = $closure( $this->data, $this );
          }
 
-         return $this->data;
+         return $this->data ?: [];
       }
       return null;
    }
@@ -1736,29 +1736,59 @@ class Daniia
    }
 
    public function getData() {
-      return $this->data;
+      return $this->data ?: [];
    }
 
    public function getDataFirst() {
       if ( is_array( $this->data ) ) {
          if ( isset( $this->data[0] ) ) {
-            return $this->data[0] ;
+            return $this->data[0] ?: [];
          }
          elseif ($this->data) {
-            return $this->data;
+            return $this->data ?: [];
          }
          else {
             return [];
          }
       }
       elseif( $this->data ) {
-         return $this->data;
+         return $this->data ?: [];
       }
       else {
          return new \stdClass();
       }
    }
 
+   public function getDataLists($column,$index=NULL) {
+
+      if (count($this->data)) {
+         $temp_datas = $this->data;
+         $new_data = [];
+         if ($column && $index===NULL) {
+            foreach ($temp_datas as $object) {
+               if ( is_array( $object ) ) {
+                  $new_data[] = $object[$column];
+               }
+               else {
+                  $new_data[] = $object->{$column};
+               }
+            }
+         }
+         elseif ($column && $index!==NULL) {
+            foreach ($temp_datas as $key => $object) {
+               if ( is_array( $object ) ) {
+                  $new_data[$object[$index]] = $object[$column];
+               }
+               else {
+                  $new_data[$object->{$index}] = $object->{$column};
+               }
+            }
+         }
+
+         return $new_data;
+      }
+      return [];
+   }
 
 
 
