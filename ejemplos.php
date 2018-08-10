@@ -24,22 +24,22 @@
  */
 
 
-// foreach ([
-//    "USER" =>"root",
-//    "PASS" =>"",
-//    "SCHEMA" =>"daniia",
-//    "DSN" =>"mysql:port=3306;host=localhost;dbname=daniia",
-// ] as $key => $value)
-// { define(strtoupper($key),$value); }
-
 foreach ([
-   "USER" =>"postgres",
-   "PASS" =>"123",
+   "USER" =>"root",
+   "PASS" =>"",
    "SCHEMA" =>"daniia",
-   "DSN" =>"pgsql:port=5432;host=localhost;dbname=daniia",
-   ]
-as $key => $value
-) { define(strtoupper($key),$value); }
+   "DSN" =>"mysql:port=3306;host=localhost;dbname=daniia",
+] as $key => $value)
+{ define(strtoupper($key),$value); }
+
+// foreach ([
+//    "USER" =>"postgres",
+//    "PASS" =>"123",
+//    "SCHEMA" =>"daniia",
+//    "DSN" =>"pgsql:port=5432;host=localhost;dbname=daniia",
+//    ]
+// as $key => $value
+// ) { define(strtoupper($key),$value); }
 
 require("Daniia/Daniia.php");
 require("Daniia/BaseDaniia.php");
@@ -1348,7 +1348,7 @@ $personas = new Personas;
 
 // $daniia
 //    ->table("personas")
-//    ->where("nombre",'ilike',"%carlos%")
+//    ->where("nombre",'like',"%carlos%")
 //    ->first();
 // var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
 // echo "<hr>";
@@ -1430,16 +1430,16 @@ $personas = new Personas;
 // var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
 // echo "<hr>";
 
-// $daniia
-//    ->table("personas")
-//    ->where(function (Daniia $daniia) {
-//       $daniia
-//          ->where("id",4)
-//          ->andWhere("apellido","ILIKE","%garcia%");
-//    })
-//    ->first();
-// var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
-// echo "<hr>";
+$daniia
+   ->table("personas")
+   ->where(function (Daniia $daniia) {
+      $daniia
+         ->where("id",4)
+         ->andWhere("apellido","LIKE","%garcia%");
+   })
+   ->first();
+var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+echo "<hr>";
 
 // $daniia
 //    ->table("personas")
@@ -1563,18 +1563,31 @@ $personas = new Personas;
 // var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
 // echo "<hr>";
 
-// $daniia
-//    ->table("personas")
-//    ->where(["personas.id !="=>function($query) {
-//       $query
-//          ->table("personas")
-//          ->select( 'id' )
-//          ->where("id",4)
-//          ->limit(1);
-//    }])->first();
-// var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
-// echo "<hr>";
+$daniia
+   ->table("personas")
+   ->where(["personas.id !="=>function($query) {
+      $query
+         ->table("personas")
+         ->select( 'id' )
+         ->where("id",4)
+         ->limit(1);
+   }])->first();
+var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+echo "<hr>";
 
+
+$daniia
+   ->table("personas")
+   ->where(function($query) {
+      $query
+         ->case()
+         ->when(function(){})
+         ->when(function(){})
+         ->else()
+      ;
+   })->first();
+var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+echo "<hr>";
 
 
 ###################################################################################

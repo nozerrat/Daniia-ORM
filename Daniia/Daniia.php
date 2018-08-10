@@ -126,6 +126,12 @@ class Daniia
    private $union = "";
 
    /**
+    * Contiene los CASE de las sentencia SQL
+    * @var String
+    */
+   private $case = "";
+
+   /**
     * Conexión a la Base de Datos
     * @var Connection
     */
@@ -181,7 +187,7 @@ class Daniia
 
    /**
     * Identifica el tipo de fetch
-    * Tipos: row, Array, object, all, assoc
+    * Tipos: row, array, object, all, assoc
     * @var string
     */
    public $type_fetch = "assoc";
@@ -294,6 +300,7 @@ class Daniia
       $this->limit   = " ";
       $this->offset  = " ";
       $this->union   = " ";
+      $this->case    = " ";
       $this->rows    = [] ;
       $this->placeholder_data = [] ;
       $_ENV["daniia_from"]  = null;
@@ -302,6 +309,7 @@ class Daniia
       $_ENV["daniia_join"]  = null;
       $_ENV["daniia_on"]    = null;
       $_ENV["daniia_union"] = null;
+      $_ENV["daniia_case"]  = null;
 
       $this->db_instanced();
       return $this;
@@ -363,8 +371,9 @@ class Daniia
     * @return String
     */
    private function get_sql() {
-      return "(".$this->get(false).")";
+      return "( ".$this->get(false)." )";
    }
+
 
    /**
     * almacena el Objeto si es instanciado desde un closure
@@ -377,7 +386,9 @@ class Daniia
       $_ENV["daniia_on"]     =
       $_ENV["daniia_where"]  =
       $_ENV["daniia_having"] =
-      $_ENV["daniia_union"]  = $this;
+      $_ENV["daniia_union"]  =
+      $_ENV["daniia_case"]   =
+      $this;
    }
 
 
@@ -469,7 +480,7 @@ class Daniia
     * @param Closure $closure
     * @return Array
     */
-    public function queryArray( string $sql, $closure=NULL ) {
+   public function queryArray( string $sql, $closure=NULL ) {
       $this->query( $sql );
       $this->data = array_map(function($v){return(array)$v;},$this->data);
       if ($closure instanceof \Closure) {
@@ -563,6 +574,7 @@ class Daniia
     */
    public function first($closure=NULL) {
       if(!$this->firstData) {
+         $this->limit( 1 );
          $this->get();
       }
 
@@ -636,7 +648,7 @@ class Daniia
     * @param Array $ids
     * @return Array|Object
     */
-    public function find($ids=[]) {
+   public function find($ids=[]) {
       if (func_num_args()>0) {
          if (func_num_args()===1) {
             if (!is_array($ids)) {
@@ -687,7 +699,7 @@ class Daniia
     * @author Carlos Garcia
     * @return boolean
     */
-    public function save($closure=NULL) {
+   public function save($closure=NULL) {
       $updated = FALSE;
       if ($this->saveData && @$this->data->{$this->primaryKey}) {
          $updated = $this->update((array)$this->data);
@@ -784,7 +796,7 @@ class Daniia
       if($this->driver=='mssql'||$this->driver=='sqlsrv'||$this->driver=='informix'||$this->driver=='ibm'||$this->driver=='firebird'||$this->driver=='sybase'||$this->driver=='pgsql'||$this->driver=='oci'||$this->driver=='odbc'||$this->driver=='mssql')
          $field = 'column_name';
 
-      try{
+      try {
          $stmt = $this->id_conn->prepare($sql);
          $stmt->execute();
          $stmt->setFetchMode(constant('\PDO::FETCH_ASSOC'));
@@ -867,6 +879,19 @@ class Daniia
     * @param string $select
     * @return Object
     */
+   public function _select($select = "*") {
+      if (func_num_args()>1)
+         $select = func_get_args();
+      else if(is_string($select))
+         $select = [$select];
+
+      $select = implode(",", $select);
+
+      $this->select = str_replace("*", $select, $this->select);
+
+      $this->db_instanced();
+      return $this;
+   }
    public function select($select = "*") {
       if (func_num_args()>1)
          $select = func_get_args();
@@ -1207,7 +1232,6 @@ class Daniia
       $clauseLower = strtolower($clause);
       $this->connection();
 
-
       if ( is_array($column) ) {
          foreach ($column as $key => $val) {
             // $this->operators
@@ -1225,10 +1249,23 @@ class Daniia
 
       // si es un closure lo ejecutamos
       if ($column instanceof \Closure) {
-         // el resultado resuelto es almacenado en la variable $_ENV para luego terminar de agruparlo
-         $column(new \Daniia\Daniia(true));
-         $str = $_ENV['daniia_'.$clauseLower]->{$clauseLower}.")";
-         $_ENV['daniia_'.$clauseLower] = null;
+         if ( preg_match("/^CASE/", $_ENV['daniia_'.$clauseLower]->{$clauseLower}) ) {
+            $column($_ENV['daniia_'.$clauseLower]);
+         }
+         else {
+            $column(NEW \Daniia\Daniia(TRUE));
+         }
+         
+         if ( preg_match("/^CASE/", $_ENV['daniia_'.$clauseLower]->{$clauseLower}) ) {
+            $str = "( " . $_ENV['daniia_'.$clauseLower]->{$clauseLower} . " END )";
+         }
+         else {
+            // el resultado resuelto es almacenado en la variable $_ENV para luego terminar de agruparlo
+            $str = $_ENV['daniia_'.$clauseLower]->{$clauseLower} . " )";
+         }
+         
+         var_dump( $str );
+         $_ENV['daniia_'.$clauseLower] = NULL;
          $closure = true;
       }
 
@@ -1288,10 +1325,12 @@ class Daniia
 
       if (!$closure && preg_match("/,/", $this->table)) {
          $str = $column.' '.strtoupper($operator).' '.($scape_quote===true?$this->id_conn->quote($value):$value)." ";
-      }else if(!$closure) {
-         if($operator===null&&$value===true){
+      }
+      elseif(!$closure) {
+         if ($operator===null && $value===true) {
             $str = $column;
-         }else{
+         }
+         else {
             $str = $column.' '.strtoupper($operator).' '.($scape_quote===true?$this->id_conn->quote($value):$value)." ";
          }
       }
@@ -1299,14 +1338,16 @@ class Daniia
       if (!$this->bool_group) {
          if (preg_match("/".$clauseUpper."/", $this->{$clauseLower})) {
             $this->{$clauseLower} .= " {$logicaOperator} {$str} ";
-         }else {
+         }
+         else {
             $this->{$clauseLower} = " {$clauseUpper} {$str} ";
          }
       }
       else {
          if (preg_match('/\(/', $this->{$clauseLower})) {
             $this->{$clauseLower} .= " {$logicaOperator} {$str} ";
-         }else {
+         }
+         else {
             $this->{$clauseLower} .= " ({$str} ";
          }
       }
@@ -1401,8 +1442,149 @@ class Daniia
       if (!$closure) {
          $str = $column.' '.strtoupper($operator).' '.($scape_quote?$this->id_conn->quote($value):$value);
          $this->join .= " {$type} JOIN {$schema}{$table} ON {$str} ";
-      } else
+      }
+      else {
          $this->join .= " {$type} JOIN {$schema}{$table} {$str} ";
+      }
+
+      $this->db_instanced();
+      return $this;
+   }
+
+
+
+   /**
+    * opera sobre las clausulas indicadas
+    * @author Carlos Garcia
+    * @param  $column Array|String|Closure
+    * @param  $operator string
+    * @param  $value mixed
+    * @param  $scape_quote Bool
+    * @param  $clause string
+    * @param  $logicaOperator string
+    * @return Objeto.
+    */
+   private function clauseCase($column, $operator, $value, $scape_quote, $clause, $logicaOperator) {
+      $str     = "";
+      $closure = false;
+      $logicaOperator = strtoupper($logicaOperator);
+      $clauseUpper = strtoupper($clause);
+      $clauseLower = strtolower($clause);
+      $this->connection();
+
+      if ( is_array($column) ) {
+         foreach ($column as $key => $val) {
+            // $this->operators
+            if (preg_match('/([\.a-zA-Z0-9_-]+) *(.*)/i', $key,$match)) {
+               if (trim($match[2])) {
+                  $this->clause(trim($match[1]), trim($match[2]), $val, $scape_quote, $clause, $logicaOperator);
+               }
+               else {
+                  $this->clause(trim($match[1]), $val, $value, $scape_quote, $clause, $logicaOperator);
+               }
+            }
+         }
+         return;
+      }
+
+      // si es un closure lo ejecutamos
+      if ($column instanceof \Closure) {
+         // el resultado resuelto es almacenado en la variable $_ENV para luego terminar de agruparlo
+         $column(new \Daniia\Daniia(true));
+         // if ( preg_match("/^CASE/", $_ENV["daniia_case"]->case) ) {
+         //    $str = $_ENV["daniia_case"]->get_case();
+         //    $_ENV["daniia_case"] = NULL;
+         // }
+         // else {
+            $str = $_ENV['daniia_'.$clauseLower]->{$clauseLower}.")";
+            $_ENV['daniia_'.$clauseLower] = null;
+         // }
+
+         $closure = true;
+      }
+
+      // si no es un operador valido
+      if ( $operator instanceof \Closure ) {
+         list($operator, $value, $scape_quote) = ['=', $operator, $value];
+      }
+      elseif ( is_array($operator) ) {
+         list($operator, $value, $scape_quote) = ['in', $operator, $value];
+      }
+      elseif ( !in_array(strtolower(trim($operator)), $this->operators, true) ) {
+         list($operator, $value, $scape_quote) = ['=', $operator, $value];
+      }
+
+      if ($value instanceof \Closure) {
+         // el resultado resuelto es almacenado en la variable $_ENV para luego terminar de agruparlo
+         $value(new \Daniia\Daniia());
+         $get_sql = $_ENV['daniia_'.$clauseLower]->get_sql();
+         $_ENV['daniia_'.$clauseLower] = null;
+         $scape_quote = false;
+         $value = $get_sql;
+      }
+
+      if(is_array($value)&&(strtolower($operator)=='between'||strtolower($operator)=='not between')){
+         $scape_quote = false;
+         $value = ' '.$this->id_conn->quote($value[0]).' AND '.$this->id_conn->quote($value[1]).' ';
+      }
+
+      if( is_array($value) ) {
+         $in = [];
+         foreach($value as $val){
+            if ( $val===NULL ) {
+               $in[] = ' NULL ' ;
+            }
+            elseif ( gettype($val)==='boolean' ) {
+               $in[] = $val ? ' TRUE ' : ' FALSE ' ;
+            }
+            else {
+               $in[] = $this->id_conn->quote($val);
+            }
+         }
+         $scape_quote = FALSE;
+         $value = ' ('.implode(',',$in).') ';
+      }
+      elseif ( $value===NULL ) {
+         $scape_quote = FALSE;
+         $value = ' NULL ' ;
+      }
+      elseif ( gettype($value)==='boolean' ) {
+         $scape_quote = FALSE;
+         $value = $value ? ' TRUE ' : ' FALSE ' ;
+      }
+
+      // if (is_null($value)) {
+      // 	return $this->whereNull($column, $boolean, $operator != '=');
+      // }
+
+      if (!$closure && preg_match("/,/", $this->table)) {
+         $str = $column.' '.strtoupper($operator).' '.($scape_quote===true?$this->id_conn->quote($value):$value)." ";
+      }
+      elseif(!$closure) {
+         if ($operator===null && $value===true) {
+            $str = $column;
+         }
+         else {
+            $str = $column.' '.strtoupper($operator).' '.($scape_quote===true?$this->id_conn->quote($value):$value)." ";
+         }
+      }
+
+      if (!$this->bool_group) {
+         if (preg_match("/".$clauseUpper."/", $this->{$clauseLower})) {
+            $this->{$clauseLower} .= " {$logicaOperator} {$str} ";
+         }
+         else {
+            $this->{$clauseLower} = " {$clauseUpper} {$str} ";
+         }
+      }
+      else {
+         if (preg_match('/\(/', $this->{$clauseLower})) {
+            $this->{$clauseLower} .= " {$logicaOperator} {$str} ";
+         }
+         else {
+            $this->{$clauseLower} .= " ({$str} ";
+         }
+      }
 
       $this->db_instanced();
       return $this;
@@ -1720,6 +1902,32 @@ class Daniia
          $_ENV["daniia_union"] = null;
          $this->union .= ' UNION ' . $str;
       }
+
+      $this->db_instanced();
+      return $this;
+   }
+
+
+
+   public function case() {
+      $this->case = "CASE ";
+
+      $this->db_instanced();
+      return $this;
+   }
+   public function when($column, $operator = null, $value = true, $scape_quote=true) {
+      if ( !preg_match('/^CASE /', $this->case) ) {
+         $this->case = "CASE " . $this->case ;
+      }
+      $this->case = $this->case . " WHEN  THEN";
+
+      $this->clause($column, $operator, $value, $scape_quote,'case', '');
+
+      $this->db_instanced();
+      return $this;
+   }
+   public function else() {
+      $this->case = $this->case . " ELSE ";
 
       $this->db_instanced();
       return $this;
