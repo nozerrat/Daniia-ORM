@@ -224,7 +224,7 @@ class Daniia
 
 
 
-   public function __construct($bool_group = false) {
+   final public function __construct($bool_group = false) {
       $this->bool_group = $bool_group;
    }
 
@@ -399,7 +399,7 @@ class Daniia
     * @param String $val
     * @return String
     */
-   public function quote($val) {
+   final public function quote($val) {
       $this->connection();
       return $this->id_conn->quote($val);
    }
@@ -409,7 +409,7 @@ class Daniia
     * @author Carlos Garcia
     * @return Objecto
     */
-   public function begin() {
+   final public function begin() {
       $this->connection();
       $this->id_conn->beginTransaction();
       return $this;
@@ -420,7 +420,7 @@ class Daniia
     * @author Carlos Garcia
     * @return Objecto
     */
-   public function commit() {
+   final public function commit() {
       $this->connection();
       $this->id_conn->commit();
       return $this;
@@ -431,7 +431,7 @@ class Daniia
     * @author Carlos Garcia
     * @return Objecto
     */
-   public function rollback() {
+   final public function rollback() {
       $this->connection();
       $this->id_conn->rollBack();
       return $this;
@@ -442,7 +442,7 @@ class Daniia
     * @author Carlos Garcia
     * @return Array
     */
-   public function error()	{
+   final public function error()	{
       if ($this->resultset) {
          $pdo_error        = $this->resultset->errorInfo();
          $error['code']    = @$pdo_error[1] ? $pdo_error[0].'/'.$pdo_error[1] : $pdo_error[0];
@@ -462,7 +462,7 @@ class Daniia
     * @param String $sql
     * @return Array
     */
-   public function query( string $sql, $closure=NULL ) {
+   final public function query( string $sql, $closure=NULL ) {
       $this->connection();
       $this->last_sql = $this->sql = $sql;
       $this->fetch();
@@ -480,7 +480,7 @@ class Daniia
     * @param Closure $closure
     * @return Array
     */
-   public function queryArray( string $sql, $closure=NULL ) {
+   final public function queryArray( string $sql, $closure=NULL ) {
       $this->query( $sql );
       $this->data = array_map(function($v){return(array)$v;},$this->data);
       if ($closure instanceof \Closure) {
@@ -497,7 +497,7 @@ class Daniia
     * @param Closure $closure
     * @return Array|object
     */
-   public function get($closure=NULL) {
+   final public function get($closure=NULL) {
       $this->connection();
       if (preg_match('/\./', $this->table) || !$this->schema ) {
          $this->from = str_replace("_table_", $this->table, $this->from);
@@ -533,7 +533,7 @@ class Daniia
     * @param Closure $closure
     * @return Array
     */
-   public function getArray($closure=NULL) {
+   final public function getArray($closure=NULL) {
       $this->get();
       $this->data = array_map(function($v){return(array)$v;},$this->data);
       if ($closure instanceof \Closure) {
@@ -549,7 +549,7 @@ class Daniia
     * @param Closure $closure
     * @return Array|object
     */
-   public function all($closure=NULL) {
+   final public function all($closure=NULL) {
       return $this->get($closure);
    }
 
@@ -560,7 +560,7 @@ class Daniia
     * @param Closure $closure
     * @return Array
     */
-   public function allArray($closure=NULL) {
+   final public function allArray($closure=NULL) {
       return $this->getArray($closure);
    }
 
@@ -572,7 +572,7 @@ class Daniia
     * @param Closure $closure
     * @return Object
     */
-   public function first($closure=NULL) {
+   final public function first($closure=NULL) {
       if(!$this->firstData) {
          $this->limit( 1 );
          $this->get();
@@ -599,7 +599,7 @@ class Daniia
     * @param Closure $closure
     * @return Array
     */
-   public function firstArray( $closure=NULL ) {
+   final public function firstArray( $closure=NULL ) {
       return $this->data = (array) $this->first( $closure );
    }
 
@@ -612,7 +612,7 @@ class Daniia
     * 
     * @return mixed
     */
-   public function lists($column,$index=null,$closure=NULL) {
+   final public function lists($column,$index=null,$closure=NULL) {
       if ($index instanceof \Closure) {
          $closure = $index;
          $index = null;
@@ -648,7 +648,7 @@ class Daniia
     * @param Array $ids
     * @return Array|Object
     */
-   public function find($ids=[]) {
+   final public function find($ids=[]) {
       if (func_num_args()>0) {
          if (func_num_args()===1) {
             if (!is_array($ids)) {
@@ -699,7 +699,7 @@ class Daniia
     * @author Carlos Garcia
     * @return boolean
     */
-   public function save($closure=NULL) {
+   final public function save($closure=NULL) {
       $updated = FALSE;
       if ($this->saveData && @$this->data->{$this->primaryKey}) {
          $updated = $this->update((array)$this->data);
@@ -740,7 +740,7 @@ class Daniia
     * @param String $primaryKey
     * @return Object
     */
-   public function primaryKey($primaryKey) {
+   final public function primaryKey($primaryKey) {
       $this->primaryKey = $primaryKey;
       return $this;
    }
@@ -751,7 +751,7 @@ class Daniia
     * @param String $table
     * @return Object
     */
-   public function columns($table=null) {
+   final public function columns($table=null) {
       $this->connection();
       $schema = $this->schema ? "{$this->schema}." : '';
       $table  = $table ?: $this->table;
@@ -817,7 +817,7 @@ class Daniia
     * @author Carlos Garcia
     * @return boolean
     */
-   public function truncate() {
+   final public function truncate() {
       $this->connection();
       $this->sql = "TRUNCATE TABLE {$this->table};";
 
@@ -835,7 +835,7 @@ class Daniia
     * @param $tables String
     * @return Object
     */
-   public function table($table) {
+   final public function table($table) {
       $this->connection();
       if (func_num_args()>1)
          $table = func_get_args();
@@ -879,7 +879,7 @@ class Daniia
     * @param string $select
     * @return Object
     */
-   public function _select($select = "*") {
+   final public function _select($select = "*") {
       if (func_num_args()>1)
          $select = func_get_args();
       else if(is_string($select))
@@ -892,7 +892,7 @@ class Daniia
       $this->db_instanced();
       return $this;
    }
-   public function select($select = "*") {
+   final public function select($select = "*") {
       if (func_num_args()>1)
          $select = func_get_args();
       else if(is_string($select))
@@ -913,7 +913,7 @@ class Daniia
     * @param $alias String
     * @return Object
    */
-   public function from($table="",$aliasFrom="") {
+   final public function from($table="",$aliasFrom="") {
       $this->connection();
 
       $sql = "";
@@ -971,7 +971,7 @@ class Daniia
     * @param $returning_id Boolean
     * @return Boolean
     */
-   public function insert(array $datas, bool $returning_id = false) {
+   final public function insert(array $datas, bool $returning_id = false) {
       if (is_array($datas) && count($datas)) {
          if (!is_array(@$datas[0]))
             $datas = [$datas];
@@ -1036,7 +1036,7 @@ class Daniia
     * @param $datas Array
     * @return integer
     */
-   public function insertGetId(array $datas) {
+   final public function insertGetId(array $datas) {
       $this->connection();
       $this->last_id = NULL;
       if ( $this->driver=='pgsql' ) {
@@ -1059,7 +1059,7 @@ class Daniia
     * @param Boolean $noApplyPrimaryKey
     * @return Boolean
     */
-   public function update(array $datas, $noApplyPrimaryKey = false) {
+   final public function update(array $datas, $noApplyPrimaryKey = false) {
       if (is_array($datas) && count($datas)) {
          if (!is_array(@$datas[0]))
             $datas = [$datas];
@@ -1137,7 +1137,7 @@ class Daniia
     * @param $ids mixed
     * @return boolean
     */
-   public function delete( $ids = [] ) {
+   final public function delete( $ids = [] ) {
       if (func_num_args()>0) {
          if (func_num_args()==1) {
             if (!is_array($ids)) {
@@ -1232,6 +1232,7 @@ class Daniia
       $clauseLower = strtolower($clause);
       $this->connection();
 
+
       if ( is_array($column) ) {
          foreach ($column as $key => $val) {
             // $this->operators
@@ -1249,23 +1250,10 @@ class Daniia
 
       // si es un closure lo ejecutamos
       if ($column instanceof \Closure) {
-         if ( preg_match("/^CASE/", $_ENV['daniia_'.$clauseLower]->{$clauseLower}) ) {
-            $column($_ENV['daniia_'.$clauseLower]);
-         }
-         else {
-            $column(NEW \Daniia\Daniia(TRUE));
-         }
-         
-         if ( preg_match("/^CASE/", $_ENV['daniia_'.$clauseLower]->{$clauseLower}) ) {
-            $str = "( " . $_ENV['daniia_'.$clauseLower]->{$clauseLower} . " END )";
-         }
-         else {
-            // el resultado resuelto es almacenado en la variable $_ENV para luego terminar de agruparlo
-            $str = $_ENV['daniia_'.$clauseLower]->{$clauseLower} . " )";
-         }
-         
-         var_dump( $str );
-         $_ENV['daniia_'.$clauseLower] = NULL;
+         // el resultado resuelto es almacenado en la variable $_ENV para luego terminar de agruparlo
+         $column(new \Daniia\Daniia(true));
+         $str = $_ENV['daniia_'.$clauseLower]->{$clauseLower}.")";
+         $_ENV['daniia_'.$clauseLower] = null;
          $closure = true;
       }
 
@@ -1325,12 +1313,10 @@ class Daniia
 
       if (!$closure && preg_match("/,/", $this->table)) {
          $str = $column.' '.strtoupper($operator).' '.($scape_quote===true?$this->id_conn->quote($value):$value)." ";
-      }
-      elseif(!$closure) {
-         if ($operator===null && $value===true) {
+      }else if(!$closure) {
+         if($operator===null&&$value===true){
             $str = $column;
-         }
-         else {
+         }else{
             $str = $column.' '.strtoupper($operator).' '.($scape_quote===true?$this->id_conn->quote($value):$value)." ";
          }
       }
@@ -1338,16 +1324,14 @@ class Daniia
       if (!$this->bool_group) {
          if (preg_match("/".$clauseUpper."/", $this->{$clauseLower})) {
             $this->{$clauseLower} .= " {$logicaOperator} {$str} ";
-         }
-         else {
+         }else {
             $this->{$clauseLower} = " {$clauseUpper} {$str} ";
          }
       }
       else {
          if (preg_match('/\(/', $this->{$clauseLower})) {
             $this->{$clauseLower} .= " {$logicaOperator} {$str} ";
-         }
-         else {
+         }else {
             $this->{$clauseLower} .= " ({$str} ";
          }
       }
@@ -1454,6 +1438,323 @@ class Daniia
 
 
    /**
+    * establece las tebles que van hacer unidas
+    * @author Carlos Garcia
+    * @see function join
+    * @param $table String
+    * @param $column String|Closure
+    * @param $operator String
+    * @param $value String
+    * @param $scape_quote Bool
+    * @return Object
+    */
+   final public function join($table,$column,$operator=null,$value=null, $scape_quote=false) {
+      $this->clauseJoin($table,$column,$operator,$value,$scape_quote,"");
+      return $this;
+   }
+
+   /**
+    * establece las tebles que van hacer unidas
+    * @author Carlos Garcia
+    * @see function join
+    * @param $table String
+    * @param $column String|Closure
+    * @param $operator String
+    * @param $value String
+    * @param $scape_quote Bool
+    * @return Object
+    */
+   final public function innerJoin($table,$column,$operator=null,$value=null, $scape_quote=false) {
+      $this->clauseJoin($table,$column,$operator,$value,$scape_quote,"INNER");
+      return $this;
+   }
+
+   /**
+    * establece las tebles que van hacer unidas por la izquierda
+    * @author Carlos Garcia
+    * @see function join
+    * @param $table String
+    * @param $column String|Closure
+    * @param $operator String
+    * @param $value String
+    * @param $scape_quote Bool
+    * @return Object
+    */
+   final public function leftJoin($table,$column,$operator=null,$value=null, $scape_quote=false) {
+      $this->clauseJoin($table,$column,$operator,$value,$scape_quote,"LEFT");
+      return $this;
+   }
+
+   /**
+    * establece las tebles que van hacer unidas por la derecha
+    * @author Carlos Garcia
+    * @see function join
+    * @param $table String
+    * @param $column String|Closure
+    * @param $operator String
+    * @param $value String
+    * @param $scape_quote Bool
+    * @return Object
+    */
+   final public function rightJoin($table,$column,$operator=null,$value=null, $scape_quote=false) {
+      $this->clauseJoin($table,$column,$operator,$value,$scape_quote,"RIGHT");
+      return $this;
+   }
+
+   /**
+    * @author Carlos Garcia
+    * @see function clause
+    * @param  $column Array|String|Closure
+    * @param  $operator string
+    * @param  $value mixed
+    * @param  $scape_quote Bool
+    * @return Objeto.
+    */
+   final public function on($column, $operator = null, $value = false, $scape_quote=false){
+      $this->clause($column, $operator, $value, $scape_quote,'on', 'AND');
+      return $this;
+   }
+
+   /**
+    * @author Carlos Garcia
+    * @see function clause
+    * @param  $column Array|String|Closure
+    * @param  $operator string
+    * @param  $value mixed
+    * @param  $scape_quote Bool
+    * @return Objeto.
+    */
+   final public function orOn($column, $operator = null, $value = false, $scape_quote=false){
+      $this->clause($column, $operator, $value, $scape_quote,'on', 'OR');
+      return $this;
+   }
+
+   /**
+    * @author Carlos Garcia
+    * @see function clause
+    * @param  $column Array|String|Closure
+    * @param  $operator string
+    * @param  $value mixed
+    * @param  $scape_quote Bool
+    * @return Objeto.
+    */
+   final public function andOn($column, $operator = null, $value = false, $scape_quote=false){
+      $this->clause($column, $operator, $value, $scape_quote,'on', 'AND');
+      return $this;
+   }
+
+
+
+   /**
+    * @author Carlos Garcia
+    * @see function clause
+    * @param  $column Array|String|Closure
+    * @param  $operator string
+    * @param  $value mixed
+    * @param  $scape_quote Bool
+    * @return Objeto.
+    */
+   final public function where($column, $operator = null, $value = true, $scape_quote=true) {
+      $this->clause($column, $operator, $value, $scape_quote,'where', 'AND');
+      return $this;
+   }
+
+   /**
+    * @author Carlos Garcia
+    * @see function clause
+    * @param  $column Array|String|Closure
+    * @param  $operator string
+    * @param  $value mixed
+    * @param  $scape_quote Bool
+    * @return Objeto.
+    */
+   final public function orWhere($column, $operator = null, $value = true, $scape_quote=true) {
+      $this->clause($column, $operator, $value, $scape_quote,'where', 'OR');
+      return $this;
+   }
+
+   /**
+    * @author Carlos Garcia
+    * @see function clause
+    * @param  $column Array|String|Closure
+    * @param  $operator string
+    * @param  $value mixed
+    * @param  $scape_quote Bool
+    * @return Objeto.
+    */
+   final public function andWhere($column, $operator = null, $value = true, $scape_quote=true) {
+      $this->clause($column, $operator, $value, $scape_quote,'where', 'AND');
+      return $this;
+   }
+
+
+
+   /**
+    * @author Carlos Garcia
+    * @see function clause
+    * @param  $column Array|String|Closure
+    * @param  $operator string
+    * @param  $value mixed
+    * @param  $scape_quote Bool
+    * @return Objeto.
+    */
+   final public function having($column, $operator = null, $value = true, $scape_quote=true) {
+      $this->clause($column, $operator, $value, $scape_quote,'having', 'AND');
+      return $this;
+   }
+
+   /**
+    * @author Carlos Garcia
+    * @see function having
+    * @param  $column mixed
+    * @param  $operator string
+    * @param  $value mixed
+    * @param  $scape_quote Bool
+    * @return Object
+    */
+   final public function orHaving($column, $operator = null, $value = true, $scape_quote=true) {
+      $this->clause($column, $operator, $value, $scape_quote,'having', 'OR');
+      return $this;
+   }
+
+   /**
+    * @author Carlos Garcia
+    * @see function having
+    * @param  $column mixed
+    * @param  $operator string
+    * @param  $value mixed
+    * @param  $scape_quote Bool
+    * @return Object
+    */
+   final public function andHaving($column, $operator = null, $value = true, $scape_quote=true) {
+      $this->clause($column, $operator, $value, $scape_quote,'having', 'AND');
+      return $this;
+   }
+
+
+
+   /**
+    * agrega el query ORDER BY basico
+    * @author Carlos Garcia
+    * @param String|Array $fields
+    * @return Object
+    */
+   final public function orderBy($fields) {
+      if (func_num_args()>0) {
+         if (func_num_args()==1) {
+            if (!is_array($fields)) {
+               $fields = (array) $fields;
+            }
+         }else{
+            $fields = func_get_args();
+         }
+
+         $order = '';
+         if(strtoupper($fields[count($fields)-1])=='ASC'||strtoupper($fields[count($fields)-1])=='DESC'){
+            $order = $fields[count($fields)-1];
+            unset($fields[count($fields)-1]);
+         }
+         $this->orderBy = " ORDER BY ".implode(',',$fields).' '.strtoupper($order);
+
+         $this->db_instanced();
+         return $this;
+      }
+      return null;
+   }
+
+   /**
+    * agrega el query GROUP BY basico
+    * @author Carlos Garcia
+    * @param String|Array $fields
+    * @return mixed.
+    */
+   final public function groupBy($fields) {
+      if (func_num_args()>0) {
+         if (func_num_args()==1) {
+            if (!is_array($fields)) {
+               $fields = (array) $fields;
+            }
+         }else{
+            $fields = func_get_args();
+         }
+
+         $this->groupBy = " GROUP BY ".implode(',',$fields);
+
+         $this->db_instanced();
+         return $this;
+      }
+      return null;
+   }
+
+   /**
+    * agrega el query basico LIMIT
+    * @author Carlos Garcia
+    * @param Integer|Array $limit
+    * @param Integer $offset
+    * @return Object
+    */
+   final public function limit($limit,$offset=null) {
+      if (is_numeric($limit) || is_array($limit)) {
+         if(is_array($limit)) {
+            $temp   = $limit;
+            $limit  =  $temp[0];
+            $offset = @$temp[1];
+         }
+
+         $this->limit = " LIMIT {$limit} ";
+
+         if(is_numeric($offset))
+            $this->offset( $offset );
+
+         $this->db_instanced();
+         return $this;
+      }
+
+      return null;
+   }
+
+   /**
+    * agrega el query basico OFFSET
+    * @author Carlos Garcia
+    * @param Integer|Array $limit
+    * @param Integer $offset
+    * @return Object
+    */
+   final public function offset($offset) {
+      if (is_numeric($offset)) {
+         $this->offset = " OFFSET {$offset} ";
+
+         $this->db_instanced();
+         return $this;
+      }
+
+      return null;
+   }
+
+   /**
+    * genera una lista dependiendo de los datos consultados
+    * @author Carlos Garcia
+    * @param Closure $closure
+    * @return mixed
+    */
+   final public function union($closure) {
+      // si es un closure lo ejecutamos
+      if ($closure instanceof \Closure) {
+         // el resultado resuelto es almacenado en la variable $_ENV["daniia_union"]
+         // para luego terminar de agruparlo
+         $closure(new \Daniia\Daniia());
+         $str = $_ENV["daniia_union"]->get_sql();
+         $_ENV["daniia_union"] = null;
+         $this->union .= ' UNION ' . $str;
+      }
+
+      $this->db_instanced();
+      return $this;
+   }
+
+
+
+   /**
     * opera sobre las clausulas indicadas
     * @author Carlos Garcia
     * @param  $column Array|String|Closure
@@ -1471,6 +1772,7 @@ class Daniia
       $clauseUpper = strtoupper($clause);
       $clauseLower = strtolower($clause);
       $this->connection();
+
 
       if ( is_array($column) ) {
          foreach ($column as $key => $val) {
@@ -1491,15 +1793,8 @@ class Daniia
       if ($column instanceof \Closure) {
          // el resultado resuelto es almacenado en la variable $_ENV para luego terminar de agruparlo
          $column(new \Daniia\Daniia(true));
-         // if ( preg_match("/^CASE/", $_ENV["daniia_case"]->case) ) {
-         //    $str = $_ENV["daniia_case"]->get_case();
-         //    $_ENV["daniia_case"] = NULL;
-         // }
-         // else {
-            $str = $_ENV['daniia_'.$clauseLower]->{$clauseLower}.")";
-            $_ENV['daniia_'.$clauseLower] = null;
-         // }
-
+         $str = $_ENV['daniia_'.$clauseLower]->{$clauseLower}.")";
+         $_ENV['daniia_'.$clauseLower] = null;
          $closure = true;
       }
 
@@ -1559,12 +1854,10 @@ class Daniia
 
       if (!$closure && preg_match("/,/", $this->table)) {
          $str = $column.' '.strtoupper($operator).' '.($scape_quote===true?$this->id_conn->quote($value):$value)." ";
-      }
-      elseif(!$closure) {
-         if ($operator===null && $value===true) {
+      }else if(!$closure) {
+         if($operator===null&&$value===true){
             $str = $column;
-         }
-         else {
+         }else{
             $str = $column.' '.strtoupper($operator).' '.($scape_quote===true?$this->id_conn->quote($value):$value)." ";
          }
       }
@@ -1572,16 +1865,14 @@ class Daniia
       if (!$this->bool_group) {
          if (preg_match("/".$clauseUpper."/", $this->{$clauseLower})) {
             $this->{$clauseLower} .= " {$logicaOperator} {$str} ";
-         }
-         else {
+         }else {
             $this->{$clauseLower} = " {$clauseUpper} {$str} ";
          }
       }
       else {
          if (preg_match('/\(/', $this->{$clauseLower})) {
             $this->{$clauseLower} .= " {$logicaOperator} {$str} ";
-         }
-         else {
+         }else {
             $this->{$clauseLower} .= " ({$str} ";
          }
       }
@@ -1590,343 +1881,64 @@ class Daniia
       return $this;
    }
 
-
-
    /**
-    * establece las tebles que van hacer unidas
+    * opera sobre las clausulas indicadas
     * @author Carlos Garcia
-    * @see function join
-    * @param $table String
-    * @param $column String|Closure
-    * @param $operator String
-    * @param $value String
-    * @param $scape_quote Bool
-    * @return Object
-    */
-   public function join($table,$column,$operator=null,$value=null, $scape_quote=false) {
-      $this->clauseJoin($table,$column,$operator,$value,$scape_quote,"");
-      return $this;
-   }
-
-   /**
-    * establece las tebles que van hacer unidas
-    * @author Carlos Garcia
-    * @see function join
-    * @param $table String
-    * @param $column String|Closure
-    * @param $operator String
-    * @param $value String
-    * @param $scape_quote Bool
-    * @return Object
-    */
-   public function innerJoin($table,$column,$operator=null,$value=null, $scape_quote=false) {
-      $this->clauseJoin($table,$column,$operator,$value,$scape_quote,"INNER");
-      return $this;
-   }
-
-   /**
-    * establece las tebles que van hacer unidas por la izquierda
-    * @author Carlos Garcia
-    * @see function join
-    * @param $table String
-    * @param $column String|Closure
-    * @param $operator String
-    * @param $value String
-    * @param $scape_quote Bool
-    * @return Object
-    */
-   public function leftJoin($table,$column,$operator=null,$value=null, $scape_quote=false) {
-      $this->clauseJoin($table,$column,$operator,$value,$scape_quote,"LEFT");
-      return $this;
-   }
-
-   /**
-    * establece las tebles que van hacer unidas por la derecha
-    * @author Carlos Garcia
-    * @see function join
-    * @param $table String
-    * @param $column String|Closure
-    * @param $operator String
-    * @param $value String
-    * @param $scape_quote Bool
-    * @return Object
-    */
-   public function rightJoin($table,$column,$operator=null,$value=null, $scape_quote=false) {
-      $this->clauseJoin($table,$column,$operator,$value,$scape_quote,"RIGHT");
-      return $this;
-   }
-
-   /**
-    * @author Carlos Garcia
-    * @see function clause
-    * @param  $column Array|String|Closure
-    * @param  $operator string
-    * @param  $value mixed
-    * @param  $scape_quote Bool
+    * @param  $column String|Closure
+    * @param  $scape_quote string
     * @return Objeto.
+   Sintax:
+      CASE expression
+         WHEN value THEN result
+         [WHEN ...]
+         [ELSE result]
+      END
+
+   Examples:
+      SELECT CASE WHEN 2=1 THEN 'one'
+               WHEN 2=2 THEN 'two'
+               ELSE 'other'
+            END;
+
+      SELECT CASE WHEN 2=(SELECT 1) THEN 'one'
+               WHEN 2=(SELECT 2) THEN 'two'
+               ELSE 'other'
+            END;
+
+      SELECT CASE WHEN (SELECT 2)=(SELECT 1) THEN 'one'
+               WHEN (SELECT 2)=(SELECT 2) THEN 'two'
+               ELSE 'other'
+            END;
+
+      SELECT CASE 2 WHEN 1 THEN 'one'
+                  WHEN 2 THEN 'two'
+                  ELSE 'other'
+            END;
+
+      SELECT CASE (SELECT '1'::INTEGER) WHEN (SELECT 1) THEN 'one'
+                  WHEN (SELECT 2) THEN 'two'
+                  ELSE (SELECT 'other'::TEXT)
+            END;
+
     */
-   public function on($column, $operator = null, $value = false, $scape_quote=false){
-      $this->clause($column, $operator, $value, $scape_quote,'on', 'AND');
-      return $this;
-   }
-
-   /**
-    * @author Carlos Garcia
-    * @see function clause
-    * @param  $column Array|String|Closure
-    * @param  $operator string
-    * @param  $value mixed
-    * @param  $scape_quote Bool
-    * @return Objeto.
-    */
-   public function orOn($column, $operator = null, $value = false, $scape_quote=false){
-      $this->clause($column, $operator, $value, $scape_quote,'on', 'OR');
-      return $this;
-   }
-
-   /**
-    * @author Carlos Garcia
-    * @see function clause
-    * @param  $column Array|String|Closure
-    * @param  $operator string
-    * @param  $value mixed
-    * @param  $scape_quote Bool
-    * @return Objeto.
-    */
-   public function andOn($column, $operator = null, $value = false, $scape_quote=false){
-      $this->clause($column, $operator, $value, $scape_quote,'on', 'AND');
-      return $this;
-   }
-
-
-
-   /**
-    * @author Carlos Garcia
-    * @see function clause
-    * @param  $column Array|String|Closure
-    * @param  $operator string
-    * @param  $value mixed
-    * @param  $scape_quote Bool
-    * @return Objeto.
-    */
-   public function where($column, $operator = null, $value = true, $scape_quote=true) {
-      $this->clause($column, $operator, $value, $scape_quote,'where', 'AND');
-      return $this;
-   }
-
-   /**
-    * @author Carlos Garcia
-    * @see function clause
-    * @param  $column Array|String|Closure
-    * @param  $operator string
-    * @param  $value mixed
-    * @param  $scape_quote Bool
-    * @return Objeto.
-    */
-   public function orWhere($column, $operator = null, $value = true, $scape_quote=true) {
-      $this->clause($column, $operator, $value, $scape_quote,'where', 'OR');
-      return $this;
-   }
-
-   /**
-    * @author Carlos Garcia
-    * @see function clause
-    * @param  $column Array|String|Closure
-    * @param  $operator string
-    * @param  $value mixed
-    * @param  $scape_quote Bool
-    * @return Objeto.
-    */
-   public function andWhere($column, $operator = null, $value = true, $scape_quote=true) {
-      $this->clause($column, $operator, $value, $scape_quote,'where', 'AND');
-      return $this;
-   }
-
-
-
-   /**
-    * @author Carlos Garcia
-    * @see function clause
-    * @param  $column Array|String|Closure
-    * @param  $operator string
-    * @param  $value mixed
-    * @param  $scape_quote Bool
-    * @return Objeto.
-    */
-   public function having($column, $operator = null, $value = true, $scape_quote=true) {
-      $this->clause($column, $operator, $value, $scape_quote,'having', 'AND');
-      return $this;
-   }
-
-   /**
-    * @author Carlos Garcia
-    * @see function having
-    * @param  $column mixed
-    * @param  $operator string
-    * @param  $value mixed
-    * @param  $scape_quote Bool
-    * @return Object
-    */
-   public function orHaving($column, $operator = null, $value = true, $scape_quote=true) {
-      $this->clause($column, $operator, $value, $scape_quote,'having', 'OR');
-      return $this;
-   }
-
-   /**
-    * @author Carlos Garcia
-    * @see function having
-    * @param  $column mixed
-    * @param  $operator string
-    * @param  $value mixed
-    * @param  $scape_quote Bool
-    * @return Object
-    */
-   public function andHaving($column, $operator = null, $value = true, $scape_quote=true) {
-      $this->clause($column, $operator, $value, $scape_quote,'having', 'AND');
-      return $this;
-   }
-
-
-
-   /**
-    * agrega el query ORDER BY basico
-    * @author Carlos Garcia
-    * @param String|Array $fields
-    * @return Object
-    */
-   public function orderBy($fields) {
-      if (func_num_args()>0) {
-         if (func_num_args()==1) {
-            if (!is_array($fields)) {
-               $fields = (array) $fields;
-            }
-         }else{
-            $fields = func_get_args();
-         }
-
-         $order = '';
-         if(strtoupper($fields[count($fields)-1])=='ASC'||strtoupper($fields[count($fields)-1])=='DESC'){
-            $order = $fields[count($fields)-1];
-            unset($fields[count($fields)-1]);
-         }
-         $this->orderBy = " ORDER BY ".implode(',',$fields).' '.strtoupper($order);
-
-         $this->db_instanced();
-         return $this;
-      }
-      return null;
-   }
-
-   /**
-    * agrega el query GROUP BY basico
-    * @author Carlos Garcia
-    * @param String|Array $fields
-    * @return mixed.
-    */
-   public function groupBy($fields) {
-      if (func_num_args()>0) {
-         if (func_num_args()==1) {
-            if (!is_array($fields)) {
-               $fields = (array) $fields;
-            }
-         }else{
-            $fields = func_get_args();
-         }
-
-         $this->groupBy = " GROUP BY ".implode(',',$fields);
-
-         $this->db_instanced();
-         return $this;
-      }
-      return null;
-   }
-
-   /**
-    * agrega el query basico LIMIT
-    * @author Carlos Garcia
-    * @param Integer|Array $limit
-    * @param Integer $offset
-    * @return Object
-    */
-   public function limit($limit,$offset=null) {
-      if (is_numeric($limit) || is_array($limit)) {
-         if(is_array($limit)) {
-            $temp   = $limit;
-            $limit  =  $temp[0];
-            $offset = @$temp[1];
-         }
-
-         $this->limit = " LIMIT {$limit} ";
-
-         if(is_numeric($offset))
-            $this->offset( $offset );
-
-         $this->db_instanced();
-         return $this;
-      }
-
-      return null;
-   }
-
-   /**
-    * agrega el query basico OFFSET
-    * @author Carlos Garcia
-    * @param Integer|Array $limit
-    * @param Integer $offset
-    * @return Object
-    */
-   public function offset($offset) {
-      if (is_numeric($offset)) {
-         $this->offset = " OFFSET {$offset} ";
-
-         $this->db_instanced();
-         return $this;
-      }
-
-      return null;
-   }
-
-   /**
-    * genera una lista dependiendo de los datos consultados
-    * @author Carlos Garcia
-    * @param Closure $closure
-    * @return mixed
-    */
-   public function union($closure) {
-      // si es un closure lo ejecutamos
-      if ($closure instanceof \Closure) {
-         // el resultado resuelto es almacenado en la variable $_ENV["daniia_union"]
-         // para luego terminar de agruparlo
-         $closure(new \Daniia\Daniia());
-         $str = $_ENV["daniia_union"]->get_sql();
-         $_ENV["daniia_union"] = null;
-         $this->union .= ' UNION ' . $str;
-      }
-
-      $this->db_instanced();
-      return $this;
-   }
-
-
-
-   public function case() {
+   final public function case($value=NULL, $scape_quote=FALSE) {
       $this->case = "CASE ";
 
       $this->db_instanced();
       return $this;
    }
-   public function when($column, $operator = null, $value = true, $scape_quote=true) {
+   final public function when($column, $operator = null, $value = true, $scape_quote=true) {
       if ( !preg_match('/^CASE /', $this->case) ) {
          $this->case = "CASE " . $this->case ;
       }
       $this->case = $this->case . " WHEN  THEN";
 
-      $this->clause($column, $operator, $value, $scape_quote,'case', '');
+      $this->clauseCase($column, $operator, $value, $scape_quote,'case', '');
 
       $this->db_instanced();
       return $this;
    }
-   public function else() {
+   final public function else() {
       $this->case = $this->case . " ELSE ";
 
       $this->db_instanced();
@@ -1935,19 +1947,19 @@ class Daniia
 
 
 
-   public function lastId() {
+   final public function lastId() {
       return (integer) $this->last_id;
    }
 
-   public function lastQuery() {
+   final public function lastQuery() {
       return $this->last_sql;
    }
 
-   public function getData() {
+   final public function getData() {
       return $this->data ?: [];
    }
 
-   public function getDataFirst() {
+   final public function getDataFirst() {
       if ( is_array( $this->data ) ) {
          if ( isset( $this->data[0] ) ) {
             return $this->data[0] ?: [];
@@ -1967,7 +1979,7 @@ class Daniia
       }
    }
 
-   public function getDataLists($column,$index=NULL) {
+   final public function getDataLists($column,$index=NULL) {
 
       if (count($this->data)) {
          $temp_datas = $this->data;
@@ -2000,13 +2012,13 @@ class Daniia
 
 
 
-   public function __set($name, $value) {
+   final public function __set($name, $value) {
       if(!is_object($this->data))
          $this->data = new \stdClass();
       $this->data->{$name} = $value;
    }
 
-   public function __get($name) {
+   final public function __get($name) {
       return @$this->data->{$name};
    }
 }

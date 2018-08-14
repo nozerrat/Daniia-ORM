@@ -24,22 +24,22 @@
  */
 
 
-foreach ([
-   "USER" =>"root",
-   "PASS" =>"",
-   "SCHEMA" =>"daniia",
-   "DSN" =>"mysql:port=3306;host=localhost;dbname=daniia",
-] as $key => $value)
-{ define(strtoupper($key),$value); }
-
 // foreach ([
-//    "USER" =>"postgres",
-//    "PASS" =>"123",
+//    "USER" =>"root",
+//    "PASS" =>"",
 //    "SCHEMA" =>"daniia",
-//    "DSN" =>"pgsql:port=5432;host=localhost;dbname=daniia",
-//    ]
-// as $key => $value
-// ) { define(strtoupper($key),$value); }
+//    "DSN" =>"mysql:port=3306;host=localhost;dbname=daniia",
+// ] as $key => $value)
+// { define(strtoupper($key),$value); }
+
+foreach ([
+   "USER" =>"postgres",
+   "PASS" =>"123",
+   "SCHEMA" =>"daniia",
+   "DSN" =>"pgsql:port=5432;host=localhost;dbname=daniia",
+   ]
+as $key => $value
+) { define(strtoupper($key),$value); }
 
 require("Daniia/Daniia.php");
 require("Daniia/BaseDaniia.php");
@@ -1575,6 +1575,12 @@ $daniia
 var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
 echo "<hr>";
 
+
+###################################################################################
+###################################################################################
+##########################             CASE            ############################
+###################################################################################
+###################################################################################
 
 $daniia
    ->table("personas")
