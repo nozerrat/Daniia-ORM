@@ -129,8 +129,10 @@ class Daniia
     * Contiene los CASE de las sentencia SQL
     * @var String
     */
-   private $case = "";
-
+    private $case = "";
+    private $when = "";
+    private $else = "";
+    
    /**
     * Conexión a la Base de Datos
     * @var Connection
@@ -1253,6 +1255,13 @@ class Daniia
          // el resultado resuelto es almacenado en la variable $_ENV para luego terminar de agruparlo
          $column(new \Daniia\Daniia(true));
          $str = $_ENV['daniia_'.$clauseLower]->{$clauseLower}.")";
+
+         if (preg_match("/^CASE/", $_ENV['daniia_case']->case)) {
+            $str = $_ENV['daniia_case']->case." END";
+         }
+
+         
+
          $_ENV['daniia_'.$clauseLower] = null;
          $closure = true;
       }
@@ -1313,25 +1322,37 @@ class Daniia
 
       if (!$closure && preg_match("/,/", $this->table)) {
          $str = $column.' '.strtoupper($operator).' '.($scape_quote===true?$this->id_conn->quote($value):$value)." ";
-      }else if(!$closure) {
+      }
+      elseif(!$closure) {
          if($operator===null&&$value===true){
             $str = $column;
-         }else{
+         }
+         else{
             $str = $column.' '.strtoupper($operator).' '.($scape_quote===true?$this->id_conn->quote($value):$value)." ";
          }
       }
 
-      if (!$this->bool_group) {
+      if (preg_match("/^CASE/", $this->{$clauseLower})) {
+         $_ENV['daniia_'.$clauseLower]->{$clauseLower} = $this->case;
+
+         
+         $this->db_instanced();
+         return $str;
+
+      }
+      elseif (!$this->bool_group) {
          if (preg_match("/".$clauseUpper."/", $this->{$clauseLower})) {
             $this->{$clauseLower} .= " {$logicaOperator} {$str} ";
-         }else {
+         }
+         else {
             $this->{$clauseLower} = " {$clauseUpper} {$str} ";
          }
       }
       else {
          if (preg_match('/\(/', $this->{$clauseLower})) {
             $this->{$clauseLower} .= " {$logicaOperator} {$str} ";
-         }else {
+         }
+         else {
             $this->{$clauseLower} .= " ({$str} ";
          }
       }
@@ -1854,25 +1875,32 @@ class Daniia
 
       if (!$closure && preg_match("/,/", $this->table)) {
          $str = $column.' '.strtoupper($operator).' '.($scape_quote===true?$this->id_conn->quote($value):$value)." ";
-      }else if(!$closure) {
+      }
+      elseif(!$closure) {
          if($operator===null&&$value===true){
             $str = $column;
-         }else{
+         }
+         else{
             $str = $column.' '.strtoupper($operator).' '.($scape_quote===true?$this->id_conn->quote($value):$value)." ";
          }
       }
-
-      if (!$this->bool_group) {
+      
+      if (preg_match("/^CASE/", $this->{$clauseLower})) {
+         var_dump( $str, $this->case );
+      }
+      elseif (!$this->bool_group) {
          if (preg_match("/".$clauseUpper."/", $this->{$clauseLower})) {
             $this->{$clauseLower} .= " {$logicaOperator} {$str} ";
-         }else {
+         }
+         else {
             $this->{$clauseLower} = " {$clauseUpper} {$str} ";
          }
       }
       else {
          if (preg_match('/\(/', $this->{$clauseLower})) {
             $this->{$clauseLower} .= " {$logicaOperator} {$str} ";
-         }else {
+         }
+         else {
             $this->{$clauseLower} .= " ({$str} ";
          }
       }
@@ -1919,26 +1947,58 @@ class Daniia
                   WHEN (SELECT 2) THEN 'two'
                   ELSE (SELECT 'other'::TEXT)
             END;
-
     */
-   final public function case($value=NULL, $scape_quote=FALSE) {
+   final public function case($column, $operator=NULL, $value=NULL, $scape_quote=TRUE) {
       $this->case = "CASE ";
 
       $this->db_instanced();
       return $this;
    }
-   final public function when($column, $operator = null, $value = true, $scape_quote=true) {
+
+   final public function when($column, $operator=NULL, $value=TRUE, $return_value=NULL, $scape_quote=TRUE) {
       if ( !preg_match('/^CASE /', $this->case) ) {
          $this->case = "CASE " . $this->case ;
       }
-      $this->case = $this->case . " WHEN  THEN";
 
-      $this->clauseCase($column, $operator, $value, $scape_quote,'case', '');
+      // si no es un operador valido
+      if ( $return_value===NULL ) {
+         list($column, $operator, $value, $return_value) = [$column, NULL , $operator, $value];
+      }
+
+      if( is_array($return_value) ) {
+         $in = [];
+         foreach($return_value as $val){
+            if ( $val===NULL ) {
+               $in[] = ' NULL ' ;
+            }
+            elseif ( gettype($val)==='boolean' ) {
+               $in[] = $val ? ' TRUE ' : ' FALSE ' ;
+            }
+            else {
+               $in[] = $this->id_conn->quote($val);
+            }
+         }
+         $scape_quote = FALSE;
+         $return_value = ' ('.implode(',',$in).') ';
+      }
+      elseif ( $return_value===NULL ) {
+         $scape_quote = FALSE;
+         $return_value = ' NULL ' ;
+      }
+      elseif ( gettype($return_value)==='boolean' ) {
+         $scape_quote = FALSE;
+         $return_value = $return_value ? ' TRUE ' : ' FALSE ' ;
+      }      
+
+      $str = $this->clause($column, $operator, $value, $scape_quote,'case', '');
+
+      $this->case .= " WHEN {$str} THEN {$return_value} ";
 
       $this->db_instanced();
       return $this;
    }
-   final public function else() {
+
+   final public function else($column, $operator=NULL, $value=TRUE, $scape_quote=TRUE) {
       $this->case = $this->case . " ELSE ";
 
       $this->db_instanced();

@@ -1430,16 +1430,16 @@ $personas = new Personas;
 // var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
 // echo "<hr>";
 
-$daniia
-   ->table("personas")
-   ->where(function (Daniia $daniia) {
-      $daniia
-         ->where("id",4)
-         ->andWhere("apellido","LIKE","%garcia%");
-   })
-   ->first();
-var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
-echo "<hr>";
+// $daniia
+//    ->table("personas")
+//    ->where(function (Daniia $daniia) {
+//       $daniia
+//          ->where("id",4)
+//          ->andWhere("apellido","LIKE","%garcia%");
+//    })
+//    ->first();
+// var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+// echo "<hr>";
 
 // $daniia
 //    ->table("personas")
@@ -1563,22 +1563,22 @@ echo "<hr>";
 // var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
 // echo "<hr>";
 
-$daniia
-   ->table("personas")
-   ->where(["personas.id !="=>function($query) {
-      $query
-         ->table("personas")
-         ->select( 'id' )
-         ->where("id",4)
-         ->limit(1);
-   }])->first();
-var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
-echo "<hr>";
+// $daniia
+//    ->table("personas")
+//    ->where(["personas.id !="=>function($query) {
+//       $query
+//          ->table("personas")
+//          ->select( 'id' )
+//          ->where("id",4)
+//          ->limit(1);
+//    }])->first();
+// var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+// echo "<hr>";
 
 
 ###################################################################################
 ###################################################################################
-##########################             CASE            ############################
+##########################            CASE             ############################
 ###################################################################################
 ###################################################################################
 
@@ -1586,14 +1586,68 @@ $daniia
    ->table("personas")
    ->where(function($query) {
       $query
-         ->case()
-         ->when(function(){})
-         ->when(function(){})
-         ->else()
+         ->when('true', true, TRUE)
+         ->when('true', FALSE, FALSE)
       ;
    })->first();
 var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
 echo "<hr>";
+
+// $daniia
+//    ->table("personas")
+//    ->where(function($query) {
+//       $query
+//          ->case()
+//          ->when()
+//       ;
+//    })->first();
+// var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+// echo "<hr>";
+
+// $daniia
+//    ->table("personas")
+//    ->where(function($query) {
+//       $query
+//          ->case()
+//          ->when()
+//          ->else()
+//       ;
+//    })->first();
+// var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+// echo "<hr>";
+
+// $daniia
+//    ->table("personas")
+//    ->where(function($query) {
+//       $query
+//          ->when(function(){})
+//       ;
+//    })->first();
+// var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+// echo "<hr>";
+
+// $daniia
+//    ->table("personas")
+//    ->where(function($query) {
+//       $query
+//          ->case(function(){})
+//          ->when(function(){})
+//       ;
+//    })->first();
+// var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+// echo "<hr>";
+
+// $daniia
+//    ->table("personas")
+//    ->where(function($query) {
+//       $query
+//          ->case(function(){})
+//          ->when(function(){})
+//          ->else(function(){})
+//       ;
+//    })->first();
+// var_dump( $daniia->lastQuery(), $daniia->getData(), $daniia->error() );
+// echo "<hr>";
 
 
 ###################################################################################
